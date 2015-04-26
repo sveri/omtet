@@ -21,21 +21,14 @@
 (def keycodes {27 :escape, 38 :up, 40 :down, 37 :left, 39 :right
              65 :strafel 68 :strafer, 87 :up, 83 :down})
 
-;(defmulti keydown (fn [e] (.-keyCode e)))
-;
-;(defmethod keydown 38 [_]
-;  (println "up"))
-;;(defmethod keydown 39 [_])
-;;(defmethod keydown 40 [_])
-;;(defmethod keydown 37 [_])
-;
-;(defmethod keydown :default [_] (println "default"))
-
 (defn keydown [e]
   (condp = (.-keyCode e)
     40 (do (swap! tetriminios-state update-in [:y] + 1)
            (.preventDefault e))
-    (println "dont do it"))
+    38 (do (swap! tetriminios-state update-in [:orientation] (fn [old] (mod (+ 1 old) 4)))
+           (.preventDefault e))
+    e
+    )
   )
 
 (defn init-tetris []
@@ -43,13 +36,12 @@
     (add-watch tetriminios-state :tetri-state
                (fn [_ _ _ nv]
                  (.clearRect ctx 0 0 200 400)
-                  (println ctx)
                  (minios/draw-tetrimino (:x nv)
                                         (:y nv)
                                         (:type nv)
                                         (:orientation nv)
                                         ctx)))
-    (reset! tetriminios-state {:x 1 :y 2 :type :J :orientation :L})
+    (reset! tetriminios-state {:x 1 :y 2 :type 0 :orientation 0})
 
 
     (set! (.-onkeydown js/document) keydown)

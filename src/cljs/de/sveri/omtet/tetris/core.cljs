@@ -27,9 +27,11 @@
            (.preventDefault e))
     38 (do (swap! tetriminios-state update-in [:orientation] (fn [old] (mod (+ 1 old) 4)))
            (.preventDefault e))
-    e
-    )
-  )
+    37 (do (swap! tetriminios-state update-in [:x] - 1)
+           (.preventDefault e))
+    39 (do (swap! tetriminios-state update-in [:x] + 1)
+           (.preventDefault e))
+    e))
 
 (defn init-tetris []
   (let [ctx (->canv-ctx tet-id)]
@@ -41,7 +43,10 @@
                                         (:type nv)
                                         (:orientation nv)
                                         ctx)))
-    (reset! tetriminios-state {:x 1 :y 2 :type 0 :orientation 0})
+    (reset! tetriminios-state {:x           1 :y 2
+                               :type        3
+                               ;:type        (Math/floor (* 7 (Math/random)))
+                               :orientation 0})
 
 
     (set! (.-onkeydown js/document) keydown)

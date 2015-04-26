@@ -139,6 +139,9 @@
   (draw-block (+ x 1) y yellow ctx)
   (draw-block x (- y 1) yellow ctx)
   (draw-block (+ x 1) (- y 1) yellow ctx))
+(defmethod draw-tetrimino [3 1] [x y t _ ctx] (draw-tetrimino x y t 0 ctx))
+(defmethod draw-tetrimino [3 2] [x y t _ ctx] (draw-tetrimino x y t 0 ctx))
+(defmethod draw-tetrimino [3 3] [x y t _ ctx] (draw-tetrimino x y t 0 ctx))
 
 (defmethod draw-tetrimino [4 0] [x y _ _ ctx]
   (draw-block (- x 1) y green ctx)

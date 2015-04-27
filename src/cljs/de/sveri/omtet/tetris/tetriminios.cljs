@@ -220,3 +220,13 @@
   (draw-block x y red ctx)
   (draw-block (- x 1) y red ctx)
   (draw-block (- x 1) (- y 1) red ctx))
+
+
+
+
+(defn draw-tetriminio-map [m ctx]
+  (draw-tetrimino (:x m)
+                         (:y m)
+                         (:type m)
+                         (:orientation m)
+                         ctx))

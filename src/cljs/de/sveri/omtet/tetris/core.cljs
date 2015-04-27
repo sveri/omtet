@@ -23,7 +23,7 @@
         fixed (:fixed @tetriminios-state)
         new-fixed (conj fixed cur)]
     (reset! tetriminios-state {:current (minios/get-rand-tetriminio)
-                               :fixed new-fixed})))
+                               :fixed   new-fixed})))
 
 (defn keydown [e]
   (condp = (.-keyCode e)
@@ -37,22 +37,13 @@
            (.preventDefault e))
     (fix-current-add-new)))
 
-(defn draw-tetriminio-map [m ctx]
-  (minios/draw-tetrimino (:x m)
-                         (:y m)
-                         (:type m)
-                         (:orientation m)
-                         ctx))
-
 (defn init-tetris []
   (let [ctx (->canv-ctx tet-id)]
     (add-watch tetriminios-state :tetri-state
                (fn [_ _ _ nv]
                  (.clearRect ctx 0 0 200 400)
-                 (doseq [tet (:fixed nv)]
-                   (draw-tetriminio-map tet ctx))
-                 (draw-tetriminio-map (:current nv) ctx)
-                 ))
+                 (doseq [tet (:fixed nv)] (minios/draw-tetriminio-map tet ctx))
+                 (minios/draw-tetriminio-map (:current nv) ctx)))
     (reset! tetriminios-state {:current (minios/get-rand-tetriminio)})
 
 

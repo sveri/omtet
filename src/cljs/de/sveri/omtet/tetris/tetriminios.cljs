@@ -8,6 +8,12 @@
 (defonce purple 280)
 (defonce red 0)
 
+(defn get-rand-tetriminio []
+  {:x           1
+   :y 2
+   :type        (Math/floor (* 7 (Math/random)))
+   :orientation 0})
+
 (defn draw-block-top [x y ctx]
   (.beginPath ctx)
   (.moveTo ctx x y)

@@ -18,35 +18,42 @@
 (defn ->canv-ctx [id]
   (.getContext (h/get-elem id) "2d"))
 
-(def keycodes {27 :escape, 38 :up, 40 :down, 37 :left, 39 :right
-             65 :strafel 68 :strafer, 87 :up, 83 :down})
+(defn fix-current-add-new []
+  (let [cur (:current @tetriminios-state)
+        fixed (:fixed @tetriminios-state)
+        new-fixed (conj fixed cur)]
+    (reset! tetriminios-state {:current (minios/get-rand-tetriminio)
+                               :fixed new-fixed})))
 
 (defn keydown [e]
   (condp = (.-keyCode e)
-    40 (do (swap! tetriminios-state update-in [:y] + 1)
+    40 (do (swap! tetriminios-state update-in [:current :y] + 1)
            (.preventDefault e))
-    38 (do (swap! tetriminios-state update-in [:orientation] (fn [old] (mod (+ 1 old) 4)))
+    38 (do (swap! tetriminios-state update-in [:current :orientation] (fn [old] (mod (+ 1 old) 4)))
            (.preventDefault e))
-    37 (do (swap! tetriminios-state update-in [:x] - 1)
+    37 (do (swap! tetriminios-state update-in [:current :x] - 1)
            (.preventDefault e))
-    39 (do (swap! tetriminios-state update-in [:x] + 1)
+    39 (do (swap! tetriminios-state update-in [:current :x] + 1)
            (.preventDefault e))
-    e))
+    (fix-current-add-new)))
+
+(defn draw-tetriminio-map [m ctx]
+  (minios/draw-tetrimino (:x m)
+                         (:y m)
+                         (:type m)
+                         (:orientation m)
+                         ctx))
 
 (defn init-tetris []
   (let [ctx (->canv-ctx tet-id)]
     (add-watch tetriminios-state :tetri-state
                (fn [_ _ _ nv]
                  (.clearRect ctx 0 0 200 400)
-                 (minios/draw-tetrimino (:x nv)
-                                        (:y nv)
-                                        (:type nv)
-                                        (:orientation nv)
-                                        ctx)))
-    (reset! tetriminios-state {:x           1 :y 2
-                               :type        3
-                               ;:type        (Math/floor (* 7 (Math/random)))
-                               :orientation 0})
+                 (doseq [tet (:fixed nv)]
+                   (draw-tetriminio-map tet ctx))
+                 (draw-tetriminio-map (:current nv) ctx)
+                 ))
+    (reset! tetriminios-state {:current (minios/get-rand-tetriminio)})
 
 
     (set! (.-onkeydown js/document) keydown)

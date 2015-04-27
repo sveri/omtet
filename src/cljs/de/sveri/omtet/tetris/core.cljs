@@ -18,30 +18,30 @@
 (defn ->canv-ctx [id]
   (.getContext (h/get-elem id) "2d"))
 
-(defn erase-tetriminio []
+(defn draw-erase-tetriminio [draw-erase]
   (minios/draw-tetrimino (:x @minios/global-var) (:y @minios/global-var)
-                         (:t @minios/global-var) (:o @minios/global-var) 0))
+                         (:t @minios/global-var) (:o @minios/global-var) draw-erase))
 
-(defn draw-state-tetriminio []
-  (minios/draw-tetrimino (:x @minios/global-var) (:y @minios/global-var)
-                         (:t @minios/global-var) (:o @minios/global-var) 1))
+(defn add-new-tetriminio []
+  (minios/set-rand-tetriminio)
+  (draw-erase-tetriminio 1))
 
 (defn keydown [e]
   (condp = (.-keyCode e)
-    37 (do (erase-tetriminio )
+    37 (do (draw-erase-tetriminio 0)
            (swap! minios/global-var update-in [:x] - 1)
            (.preventDefault e))
-    38 (do (erase-tetriminio )
+    38 (do (draw-erase-tetriminio 0)
            (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4)))
            (.preventDefault e))
-    39 (do (erase-tetriminio )
+    39 (do (draw-erase-tetriminio 0)
            (swap! minios/global-var update-in [:x] + 1)
            (.preventDefault e))
-    40 (do (erase-tetriminio )
+    40 (do (draw-erase-tetriminio 0)
            (swap! minios/global-var update-in [:y] + 1)
            (.preventDefault e))
-    e)
-  (draw-state-tetriminio))
+    (add-new-tetriminio))
+  (draw-erase-tetriminio 1))
 
 (defn init-tetris []
   (let [ctx (->canv-ctx tet-id)]
@@ -51,7 +51,7 @@
                  (minios/draw-grid nv ctx)))
 
       (minios/init-grid 10 20)
-    (draw-state-tetriminio)
+    (draw-erase-tetriminio 1)
     (set! (.-onkeydown js/document) keydown)
 
     ;might be better

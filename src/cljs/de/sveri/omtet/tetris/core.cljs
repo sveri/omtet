@@ -1,16 +1,16 @@
 (ns de.sveri.omtet.tetris.core
-  (:require [reagent.core :as reagent]
+  (:require [cljs.core.async :refer [chan close! put!]]
+            [reagent.core :as reagent]
             [de.sveri.omtet.tetris.tetriminios :as minios]
             [de.sveri.omtet.helper :as h]
             [goog.events :as ev]
             [goog.dom :as dom])
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:import [goog.events KeyHandler]
            [goog.events.KeyHandler EventType]))
 
 ;timer function
 ;(events/listen timer goog.Timer/TICK #(game timer state surface))
-
-(def tetriminios-state (atom {}))
 
 (def tet-width "200px")
 (def tet-id "tetris-canv")
@@ -18,36 +18,42 @@
 (defn ->canv-ctx [id]
   (.getContext (h/get-elem id) "2d"))
 
-(defn fix-current-add-new []
-  (let [cur (:current @tetriminios-state)
-        fixed (:fixed @tetriminios-state)
-        new-fixed (conj fixed cur)]
-    (reset! tetriminios-state {:current (minios/get-rand-tetriminio)
-                               :fixed   new-fixed})))
+(defn erase-tetriminio []
+  (minios/draw-tetrimino (:x @minios/global-var) (:y @minios/global-var)
+                         (:t @minios/global-var) (:o @minios/global-var) 0))
+
+(defn draw-state-tetriminio []
+  (minios/draw-tetrimino (:x @minios/global-var) (:y @minios/global-var)
+                         (:t @minios/global-var) (:o @minios/global-var) 1))
 
 (defn keydown [e]
   (condp = (.-keyCode e)
-    40 (do (swap! tetriminios-state update-in [:current :y] + 1)
+    37 (do (erase-tetriminio )
+           (swap! minios/global-var update-in [:x] - 1)
            (.preventDefault e))
-    38 (do (swap! tetriminios-state update-in [:current :orientation] (fn [old] (mod (+ 1 old) 4)))
+    38 (do (erase-tetriminio )
+           (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4)))
            (.preventDefault e))
-    37 (do (swap! tetriminios-state update-in [:current :x] - 1)
+    39 (do (erase-tetriminio )
+           (swap! minios/global-var update-in [:x] + 1)
            (.preventDefault e))
-    39 (do (swap! tetriminios-state update-in [:current :x] + 1)
+    40 (do (erase-tetriminio )
+           (swap! minios/global-var update-in [:y] + 1)
            (.preventDefault e))
-    (fix-current-add-new)))
+    e)
+  (draw-state-tetriminio))
 
 (defn init-tetris []
   (let [ctx (->canv-ctx tet-id)]
-    (add-watch tetriminios-state :tetri-state
+
+    (add-watch minios/grid-state :grid-state
                (fn [_ _ _ nv]
-                 (.clearRect ctx 0 0 200 400)
-                 (doseq [tet (:fixed nv)] (minios/draw-tetriminio-map tet ctx))
-                 (minios/draw-tetriminio-map (:current nv) ctx)))
-    (reset! tetriminios-state {:current (minios/get-rand-tetriminio)})
+                 (minios/draw-grid nv ctx)))
 
-
+      (minios/init-grid 10 20)
+    (draw-state-tetriminio)
     (set! (.-onkeydown js/document) keydown)
+
     ;might be better
     ;(defn listen [el type]  (let [out (chan)] (events/listen el type (fn [e] (put! out e))) out))
     ))

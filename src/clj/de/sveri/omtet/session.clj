@@ -9,3 +9,15 @@
       :handler (fn [_ _] (clear-expired-sessions))
       :schedule "* /30 * * * * *"
       :opts {}}]))
+
+
+(def grid-state (atom [[] []]))
+
+(defn set-grid [x y t]
+  (swap! grid-state assoc-in [x y] t))
+
+(defn init-grid [w h]
+  (reset! grid-state (mapv #(into [] %) (into [] (take 20 (partition 10 (iterate identity 0)))))))
+
+;(mapv #(into [] %) your-partitioned-data) , instead of your outer (into [])
+;(def t-grid [[0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0] ])

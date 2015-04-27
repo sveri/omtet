@@ -1,18 +1,20 @@
 (ns de.sveri.omtet.tetris.tetriminios)
 
-(defonce cyan 180)
-(defonce blue 240)
-(defonce orange 40)
-(defonce yellow 60)
-(defonce green 120)
-(defonce purple 280)
-(defonce red 0)
+;(defonce cyan 180)
+;(defonce blue 240)
+;(defonce orange 40)
+;(defonce yellow 60)
+;(defonce green 120)
+;(defonce purple 280)
+;(defonce red 0)
 
-(defn get-rand-tetriminio []
-  {:x           1
-   :y 2
-   :type        (Math/floor (* 7 (Math/random)))
-   :orientation 0})
+(defonce color-map {1 180 2 240 3 40 4 60 5 120 6 280 7 0})
+
+(def grid-state (atom [[] []]))
+(def global-var (atom {:x 1 :y 1 :o 1 :t 4}))
+
+(defn set-rand-tetriminio []
+  (reset! global-var {:x 1 :y 1 :o 0 :t (Math/floor (* 7 (Math/random)))}))
 
 (defn draw-block-top [x y ctx]
   (.beginPath ctx)
@@ -51,182 +53,188 @@
 (defn draw-block [x y h ctx]
   (let [x' (* x 20)
         y' (* y 20)]                                        ; (* 20 (- 19 y))
-    (aset ctx "fillStyle" (str "hsl(" h ",100%,50%)" ))
+    (aset ctx "fillStyle" (str "hsl(" h ",100%,50%)"))
     (.fillRect ctx (+ 2 x') (+ 2 y') 16 16)
 
-    (aset ctx "fillStyle" (str "hsl(" h ",100%,70%)" ))
+    (aset ctx "fillStyle" (str "hsl(" h ",100%,70%)"))
     (draw-block-top x' y' ctx)
 
-    (aset ctx "fillStyle" (str "hsl(" h ",100%,40%)" ))
+    (aset ctx "fillStyle" (str "hsl(" h ",100%,40%)"))
     (draw-block-left x' y' ctx)
 
     (draw-block-right x' y' ctx)
 
-    (aset ctx "fillStyle" (str "hsl(" h ",100%,30%)" ))
+    (aset ctx "fillStyle" (str "hsl(" h ",100%,30%)"))
     (draw-block-bottom x' y' ctx)))
+
+
+(defn set-grid [x y t]
+  (when (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
+    (swap! grid-state assoc-in [x y] t)))
+
+(defn init-grid [w h]
+  (reset! grid-state (mapv #(into [] %) (into [] (take w (partition h (iterate identity 0)))))))
+
+(defn draw-grid [grid ctx]
+  (.clearRect ctx 0 0 200 400)
+  (doseq [x (range 10)
+          y (range 20)]
+    (let [t (get-in grid [x y])]
+      (when-not (= 0 t)
+        (draw-block x y (get color-map t) ctx)))))
 
 ; orientation 0 :Top 1 :Right 2 :Bottom 3 :Left
 (defmulti draw-tetrimino (fn [_ _ t o _] [t o]))
 
-(defmethod draw-tetrimino [0 0] [x y _ _ ctx]
-  (draw-block (- x 1) y cyan ctx)
-  (draw-block x y cyan ctx)
-  (draw-block (+ x 1) y cyan ctx)
-  (draw-block (+ x 2) y cyan ctx))
+(defmethod draw-tetrimino [1 0] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid (+ x 2) y (* t d)))
 
-(defmethod draw-tetrimino [0 1] [x y _ _ ctx]
-  (draw-block (+ x 1) (+ 1 y) cyan ctx)
-  (draw-block (+ x 1) y cyan ctx)
-  (draw-block (+ x 1) (- y 1) cyan ctx)
-  (draw-block (+ x 1) (- y 2) cyan ctx))
+(defmethod draw-tetrimino [1 1] [x y t _ d]
+  (set-grid (+ x 1) (+ 1 y) (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d))
+  (set-grid (+ x 1) (- y 2) (* t d)))
 
-(defmethod draw-tetrimino [0 2] [x y _ _ ctx]
-  (draw-block (- x 1) (- y 1) cyan ctx)
-  (draw-block x (- y 1) cyan ctx)
-  (draw-block (+ x 1) (- y 1) cyan ctx)
-  (draw-block (+ x 2) (- y 1) cyan ctx))
+(defmethod draw-tetrimino [1 2] [x y t _ d]
+  (set-grid (- x 1) (- y 1) (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d))
+  (set-grid (+ x 2) (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [0 3] [x y _ _ ctx]
-  (draw-block x (+ 1 y) cyan ctx)
-  (draw-block x y cyan ctx)
-  (draw-block x (- y 1) cyan ctx)
-  (draw-block x (- y 2) cyan ctx))
+(defmethod draw-tetrimino [1 3] [x y t _ d]
+  (set-grid x (+ 1 y) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid x (- y 2) (* t d)))
 
-(defmethod draw-tetrimino [1 0] [x y _ _ ctx]
-  (draw-block (- x 1) (+ y 1) blue ctx)
-  (draw-block (- x 1) y blue ctx)
-  (draw-block x y blue ctx)
-  (draw-block (+ x 1) y blue ctx))
+(defmethod draw-tetrimino [2 0] [x y t _ d]
+  (set-grid (- x 1) (+ y 1) (* t d))
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d)))
 
-(defmethod draw-tetrimino [1 1] [x y _ _ ctx]
-  (draw-block (+ x 1) (+ y 1) blue ctx)
-  (draw-block x (+ y 1) blue ctx)
-  (draw-block x y blue ctx)
-  (draw-block x (- y 1) blue ctx))
+(defmethod draw-tetrimino [2 1] [x y t _ d]
+  (set-grid (+ x 1) (+ y 1) (* t d))
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [1 2] [x y _ _ ctx]
-  (draw-block (- x 1) y blue ctx)
-  (draw-block x y blue ctx)
-  (draw-block (+ x 1) y blue ctx)
-  (draw-block (+ x 1) (- y 1) blue ctx))
+(defmethod draw-tetrimino [2 2] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [1 3] [x y _ _ ctx]
-  (draw-block x (+ y 1) blue ctx)
-  (draw-block x y blue ctx)
-  (draw-block x (- y 1) blue ctx)
-  (draw-block (- x 1) (- y 1) blue ctx))
+(defmethod draw-tetrimino [2 3] [x y t _ d]
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (- x 1) (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [2 0] [x y _ _ ctx]
-  (draw-block (- x 1) y orange ctx)
-  (draw-block x y orange ctx)
-  (draw-block (+ x 1) y orange ctx)
-  (draw-block (+ x 1) (+ y 1) orange ctx))
+(defmethod draw-tetrimino [3 0] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid (+ x 1) (+ y 1) (* t d)))
 
-(defmethod draw-tetrimino [2 1] [x y _ _ ctx]
-  (draw-block x (+ y 1) orange ctx)
-  (draw-block x y orange ctx)
-  (draw-block x (- y 1) orange ctx)
-  (draw-block (+ x 1) (- y 1) orange ctx))
+(defmethod draw-tetrimino [3 1] [x y t _ d]
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [2 2] [x y _ _ ctx]
-  (draw-block (- x 1) (- y 1) orange ctx)
-  (draw-block (- x 1) y orange ctx)
-  (draw-block x y orange ctx)
-  (draw-block (+ x 1) y orange ctx))
+(defmethod draw-tetrimino [3 2] [x y t _ d]
+  (set-grid (- x 1) (- y 1) (* t d))
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d)))
 
-(defmethod draw-tetrimino [2 3] [x y _ _ ctx]
-  (draw-block (- x 1) (+ y 1) orange ctx)
-  (draw-block x (+ y 1) orange ctx)
-  (draw-block x y orange ctx)
-  (draw-block x (- y 1) orange ctx))
+(defmethod draw-tetrimino [3 3] [x y t _ d]
+  (set-grid (- x 1) (+ y 1) (* t d))
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [3 0] [x y _ _ ctx]
-  (draw-block x y yellow ctx)
-  (draw-block (+ x 1) y yellow ctx)
-  (draw-block x (- y 1) yellow ctx)
-  (draw-block (+ x 1) (- y 1) yellow ctx))
-(defmethod draw-tetrimino [3 1] [x y t _ ctx] (draw-tetrimino x y t 0 ctx))
-(defmethod draw-tetrimino [3 2] [x y t _ ctx] (draw-tetrimino x y t 0 ctx))
-(defmethod draw-tetrimino [3 3] [x y t _ ctx] (draw-tetrimino x y t 0 ctx))
+(defmethod draw-tetrimino [4 0] [x y t _ d]
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d)))
+(defmethod draw-tetrimino [4 1] [x y t _ d] (draw-tetrimino x y t 0 d))
+(defmethod draw-tetrimino [4 2] [x y t _ d] (draw-tetrimino x y t 0 d))
+(defmethod draw-tetrimino [4 3] [x y t _ d] (draw-tetrimino x y t 0 d))
 
-(defmethod draw-tetrimino [4 0] [x y _ _ ctx]
-  (draw-block (- x 1) y green ctx)
-  (draw-block x y green ctx)
-  (draw-block x (+ y 1) green ctx)
-  (draw-block (+ x 1) (+ y 1) green ctx))
+(defmethod draw-tetrimino [5 0] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (+ y 1) (* t d))
+  (set-grid (+ x 1) (+ y 1) (* t d)))
 
-(defmethod draw-tetrimino [4 1] [x y _ _ ctx]
-  (draw-block x (+ y 1) green ctx)
-  (draw-block x y green ctx)
-  (draw-block (+ x 1) y green ctx)
-  (draw-block (+ x 1) (- y 1) green ctx))
+(defmethod draw-tetrimino [5 1] [x y t _ d]
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [4 2] [x y _ _ ctx]
-  (draw-block (- x 1) (- y 1) green ctx)
-  (draw-block x (- y 1) green ctx)
-  (draw-block x y green ctx)
-  (draw-block (+ x 1) y green ctx))
+(defmethod draw-tetrimino [5 2] [x y t _ d]
+  (set-grid (- x 1) (- y 1) (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d)))
 
-(defmethod draw-tetrimino [4 3] [x y _ _ ctx]
-  (draw-block (- x 1) (+ y 1) green ctx)
-  (draw-block (- x 1) y green ctx)
-  (draw-block x y green ctx)
-  (draw-block x (- y 1) green ctx))
+(defmethod draw-tetrimino [5 3] [x y t _ d]
+  (set-grid (- x 1) (+ y 1) (* t d))
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [5 0] [x y _ _ ctx]
-  (draw-block (- x 1) y purple ctx)
-  (draw-block x y purple ctx)
-  (draw-block (+ x 1) y purple ctx)
-  (draw-block x (+ y 1) purple ctx))
+(defmethod draw-tetrimino [6 0] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid x (+ y 1) (* t d)))
 
-(defmethod draw-tetrimino [5 1] [x y _ _ ctx]
-  (draw-block x (+ y 1) purple ctx)
-  (draw-block x y purple ctx)
-  (draw-block x (- y 1) purple ctx)
-  (draw-block (+ x 1) y purple ctx))
+(defmethod draw-tetrimino [6 1] [x y t _ d]
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (+ x 1) y (* t d)))
 
-(defmethod draw-tetrimino [5 2] [x y _ _ ctx]
-  (draw-block (- x 1) y purple ctx)
-  (draw-block x y purple ctx)
-  (draw-block (+ x 1) y purple ctx)
-  (draw-block x (- y 1) purple ctx))
+(defmethod draw-tetrimino [6 2] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid x (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [5 3] [x y _ _ ctx]
-  (draw-block x (+ y 1) purple ctx)
-  (draw-block x y purple ctx)
-  (draw-block x (- y 1) purple ctx)
-  (draw-block (- x 1) y purple ctx))
+(defmethod draw-tetrimino [6 3] [x y t _ d]
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (- x 1) y (* t d)))
 
-(defmethod draw-tetrimino [6 0] [x y _ _ ctx]
-  (draw-block (- x 1) (+ y 1) red ctx)
-  (draw-block x (+ y 1) red ctx)
-  (draw-block x y red ctx)
-  (draw-block (+ x 1) y red ctx))
+(defmethod draw-tetrimino [7 0] [x y t _ d]
+  (set-grid (- x 1) (+ y 1) (* t d))
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid (+ x 1) y (* t d)))
 
-(defmethod draw-tetrimino [6 1] [x y _ _ ctx]
-  (draw-block (+ x 1) (+ y 1) red ctx)
-  (draw-block (+ x 1) y red ctx)
-  (draw-block x y red ctx)
-  (draw-block x (- y 1) red ctx))
+(defmethod draw-tetrimino [7 1] [x y t _ d]
+  (set-grid (+ x 1) (+ y 1) (* t d))
+  (set-grid (+ x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [6 2] [x y _ _ ctx]
-  (draw-block (- x 1) y red ctx)
-  (draw-block x y red ctx)
-  (draw-block x (- y 1) red ctx)
-  (draw-block (+ x 1) (- y 1) red ctx))
+(defmethod draw-tetrimino [7 2] [x y t _ d]
+  (set-grid (- x 1) y (* t d))
+  (set-grid x y (* t d))
+  (set-grid x (- y 1) (* t d))
+  (set-grid (+ x 1) (- y 1) (* t d)))
 
-(defmethod draw-tetrimino [6 3] [x y _ _ ctx]
-  (draw-block x (+ y 1) red ctx)
-  (draw-block x y red ctx)
-  (draw-block (- x 1) y red ctx)
-  (draw-block (- x 1) (- y 1) red ctx))
-
-
-
-
-(defn draw-tetriminio-map [m ctx]
-  (draw-tetrimino (:x m)
-                         (:y m)
-                         (:type m)
-                         (:orientation m)
-                         ctx))
+(defmethod draw-tetrimino [7 3] [x y t _ d]
+  (set-grid x (+ y 1) (* t d))
+  (set-grid x y (* t d))
+  (set-grid (- x 1) y (* t d))
+  (set-grid (- x 1) (- y 1) (* t d)))

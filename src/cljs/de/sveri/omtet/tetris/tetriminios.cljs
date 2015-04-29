@@ -14,7 +14,7 @@
 (def global-var (atom {:x 1 :y 1 :o 1 :t 4}))
 
 (defn set-rand-tetriminio []
-  (reset! global-var {:x 1 :y 1 :o 0 :t (Math/floor (* 7 (Math/random)))}))
+  (reset! global-var {:x 1 :y 1 :o 0 :t (+ 1 (Math/floor (* 7 (Math/random))))}))
 
 (defn draw-block-top [x y ctx]
   (.beginPath ctx)
@@ -74,10 +74,6 @@
       (< t 0) (= 0 (get-in @grid-state [x y]))
       :else (do (swap! grid-state assoc-in [x y] t) true))
     false))
-
-;(defn set-grid [x y t]
-;  (when (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
-;    (swap! grid-state assoc-in [x y] t)))
 
 (defn init-grid [w h]
   (reset! grid-state (mapv #(into [] %) (into [] (take w (partition h (iterate identity 0)))))))

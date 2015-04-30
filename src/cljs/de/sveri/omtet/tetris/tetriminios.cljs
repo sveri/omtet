@@ -79,8 +79,7 @@
   (mapv #(into [] %) (into [] (take h (partition w (iterate identity 0))))))
 
 (defn init-grid [h w]
-  (reset! grid-state (generate-grid w h)))
-  ;(reset! grid-state (mapv #(into [] %) (into [] (take w (partition h (iterate identity 0)))))))
+  (reset! grid-state (generate-grid h w)))
 
 (defn draw-grid [grid ctx]
   (.clearRect ctx 0 0 200 400)

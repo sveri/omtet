@@ -83,8 +83,8 @@
 
 (defn draw-grid [grid ctx]
   (.clearRect ctx 0 0 200 400)
-  (doseq [x (range 10)
-          y (range 20)]
+  (doseq [x (range 20)
+          y (range 10)]
     (let [t (get-in grid [x y])]
       (when-not (= 0 t))
       (draw-block x y (get color-map t) ctx))))

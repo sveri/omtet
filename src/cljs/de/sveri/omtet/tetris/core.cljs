@@ -100,7 +100,7 @@
 
 (defn start-game []
   (. timer (stop))
-  (minios/init-grid 10 20)
+  (minios/init-grid 20 10)
   ;(draw-or-erase-tetriminio 1)
   (minios/set-rand-tetriminio)
   (ev/listen timer goog.Timer/TICK tick)

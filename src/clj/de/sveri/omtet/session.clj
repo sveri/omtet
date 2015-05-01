@@ -22,7 +22,11 @@
 ;(mapv #(into [] %) your-partitioned-data) , instead of your outer (into [])
 (def t-grid [[0 0 1] [ 1 1 1] [ 1 1 1] [1 0 0] ])
 
+;
+;(defn r [v]
+;  (let [clean-v (filter #(some #{0} (into #{} %)) v)]
+;    (println (count (concat clean-v (generate-grid (- 20 (count clean-v)) 3))))))
 
-(defn r [v]
-  (let [clean-v (filter #(some #{0} (into #{} %)) v)]
-    (println (count (concat clean-v (generate-grid (- 20 (count clean-v)) 3))))))
+;(defn r [v]
+;  (for [i (range (count (first v)))]
+;    (println (nth ))))

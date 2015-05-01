@@ -87,8 +87,8 @@
   (doseq [x (range 10)
           y (range 20)]
     (let [t (get-in grid [x y])]
-      (when-not (= 0 t)
-        (draw-block x y (get color-map t) ctx)))))
+      (when-not (= 0 t))
+      (draw-block x y (get color-map t) ctx))))
 
 ; orientation 0 :Top 1 :Right 2 :Bottom 3 :Left
 (defmulti draw-tetrimino (fn [_ _ t o _] [t o]))

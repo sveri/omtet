@@ -61,19 +61,24 @@
     (add-new-tetriminio))
   (draw-or-erase-tetriminio 1))
 
-(defn checklines [grid]
-  (println grid))
+(defn check-lines [v]
+  (let [clean-v (filter #(some #{0} (into #{} %)) v)]
+    (reset! minios/grid-state (into [] (concat clean-v (minios/generate-grid (- 20 (count clean-v)) 10))))
+    (println "reset grid state to " @minios/grid-state)))
 
 (defn tick []
   (draw-or-erase-tetriminio 0)
   (if (minios/draw-tetrimino (:x @minios/global-var) (+ (:y @minios/global-var) 1) (:t @minios/global-var)
                              (:o @minios/global-var) -1)
     (do (swap! minios/global-var update-in [:y] + 1)
-        (draw-or-erase-tetriminio 1))
+        (draw-or-erase-tetriminio 1)
+        (println "go down"))
     (do
+      (println "fixed")
       (draw-or-erase-tetriminio 1)
+      (println "reset grid state to " @minios/grid-state)
+      ;(check-lines @minios/grid-state)
       (minios/set-rand-tetriminio)
-      (checklines @minios/grid-state)
       (if (minios/draw-tetrimino (:x @minios/global-var) (:y @minios/global-var) (:t @minios/global-var)
                                  (:o @minios/global-var) -1)
         (draw-or-erase-tetriminio 1)
@@ -95,7 +100,7 @@
 
 (defn start-game []
   (. timer (stop))
-  (minios/init-grid 20 10)
+  (minios/init-grid 10 20)
   ;(draw-or-erase-tetriminio 1)
   (minios/set-rand-tetriminio)
   (ev/listen timer goog.Timer/TICK tick)

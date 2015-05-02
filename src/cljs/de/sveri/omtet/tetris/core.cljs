@@ -74,7 +74,6 @@
         (draw-or-erase-tetriminio 1)
         (println "go down"))
     (do
-      (println "fixed")
       (draw-or-erase-tetriminio 1)
       (println "reset grid state to " @minios/grid-state)
       ;(check-lines @minios/grid-state)
@@ -113,7 +112,8 @@
     [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
     [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} "Score: 0"]]
    [:div.col-md-3
-    [:button.btn.btn-primary {:on-click start-game} "Start Game"]]])
+    [:button.btn.btn-primary {:on-click start-game} "Start Game"]
+    [:button.btn.btn-primary {:on-click #(. timer (stop))} "Stop Game"]]])
 
 (defn init-core []
   (reagent/create-class

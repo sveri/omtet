@@ -69,10 +69,10 @@
 
 
 (defn set-grid [x y t]
-  (if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
+  (if (and (<= 0 x) (< x 20) (<= 0 y) (< y 20))
     (cond
-      (< t 0) (= 0 (get-in @grid-state [x y]))
-      :else (do (swap! grid-state assoc-in [x y] t) true))
+       (< t 0) (do (println "t" x y (get-in @grid-state [x y])) (= 0 (get-in @grid-state [x y])))
+       :else (do (println "else") (swap! grid-state assoc-in [x y] t) true))
     false))
 
 (defn generate-grid [h w]
@@ -83,8 +83,8 @@
 
 (defn draw-grid [grid ctx]
   (.clearRect ctx 0 0 200 400)
-  (doseq [x (range 20)
-          y (range 10)]
+  (doseq [x (range 10)
+          y (range 20)]
     (let [t (get-in grid [x y])]
       (when-not (= 0 t))
       (draw-block x y (get color-map t) ctx))))

@@ -68,6 +68,8 @@
     (do (swap! minios/global-var update-in [:y] + 1)
         (draw-or-erase-tetriminio 1))
     (do
+
+      (println @minios/grid-state)
       (draw-or-erase-tetriminio 1)
       (minios/set-rand-tetriminio)
       (if (minios/draw-tetrimino (:x @minios/global-var) (:y @minios/global-var) (:t @minios/global-var)
@@ -104,7 +106,8 @@
     [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
     [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} "Score: 0"]]
    [:div.col-md-3
-    [:button.btn.btn-primary {:on-click start-game} "Start Game"]]])
+    [:button.btn.btn-primary {:on-click start-game} "Start Game"]
+    [:button.btn.btn-primary {:on-click #(. timer (stop))} "Stop Game"]]])
 
 (defn init-core []
   (reagent/create-class

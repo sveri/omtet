@@ -69,22 +69,25 @@
 
 
 (defn set-grid [x y t]
-  (if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
+  (if (and (<= 0 x) (< x 20) (<= 0 y) (< y 20))
     (cond
-      (< t 0) (= 0 (get-in @grid-state [x y]))
-      :else (do (swap! grid-state assoc-in [x y] t) true))
+       (< t 0) (do (println "t" x y (get-in @grid-state [x y])) (= 0 (get-in @grid-state [x y])))
+       :else (do (println "else") (swap! grid-state assoc-in [x y] t) true))
     false))
 
-(defn init-grid [w h]
-  (reset! grid-state (mapv #(into [] %) (into [] (take w (partition h (iterate identity 0)))))))
+(defn generate-grid [h w]
+  (mapv #(into [] %) (into [] (take h (partition w (iterate identity 0))))))
+
+(defn init-grid [h w]
+  (reset! grid-state (generate-grid h w)))
 
 (defn draw-grid [grid ctx]
   (.clearRect ctx 0 0 200 400)
   (doseq [x (range 10)
           y (range 20)]
     (let [t (get-in grid [x y])]
-      (when-not (= 0 t)
-        (draw-block x y (get color-map t) ctx)))))
+      (when-not (= 0 t))
+      (draw-block x y (get color-map t) ctx))))
 
 ; orientation 0 :Top 1 :Right 2 :Bottom 3 :Left
 (defmulti draw-tetrimino (fn [_ _ t o _] [t o]))

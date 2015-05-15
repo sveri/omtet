@@ -32,10 +32,7 @@
            (swap! minios/global-var update-in [:x] - 1))
          e)
     38 (act-on-keycode
-         #(when (minios/draw-tetrimino
-                  ;(:x @minios/global-var) (:y @minios/global-var) (:t @minios/global-var)
-                  ;                     (mod (+ 1 (:o @minios/global-var)) 4)
-                                       (update-in @minios/global-var [:y] (fn [old] (mod (+ 1 old) 4))) -1)
+         #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] (fn [old] (mod (+ 1 old) 4))) -1)
            (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4))))
          e)
     39 (act-on-keycode

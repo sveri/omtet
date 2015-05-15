@@ -18,3 +18,4 @@ profiles.clj
 Procfile
 /db
 /*.log
+/omtet

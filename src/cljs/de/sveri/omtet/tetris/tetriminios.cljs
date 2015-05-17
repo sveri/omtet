@@ -67,8 +67,8 @@
       :else (do (swap! grid-state assoc-in [x y] t) true))
     false))
 
-(defn init-grid [w h]
-  (reset! grid-state (mapv #(into [] %) (into [] (take w (partition h (iterate identity 0)))))))
+;(defn init-grid [w h]
+;  (reset! grid-state (mapv #(into [] %) (into [] (take w (partition h (iterate identity 0)))))))
 
 (defn draw-grid [grid ctx]
   (.clearRect ctx 0 0 200 400)

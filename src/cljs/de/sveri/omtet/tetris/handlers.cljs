@@ -61,8 +61,8 @@
   :start-game
   (fn [app-state _]
     (. (:timer app-state) (start))
-    (minios/init-grid 10 20)
-    (assoc app-state :grid-state )
+    ;(minios/init-grid 10 20)
+    (assoc app-state :grid-state (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0))))))
     app-state))
 
 (register-handler

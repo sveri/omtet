@@ -60,11 +60,13 @@
     (draw-block-bottom x' y' ctx)))
 
 
-(defn set-grid [x y t]
+(defn set-grid [x y t grid]
   (if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
     (cond
-      (< t 0) (= 0 (get-in @grid-state [x y]))
-      :else (do (swap! grid-state assoc-in [x y] t) true))
+      (< t 0) (= 0 (get-in grid [x y]))
+      :else (assoc-in grid [x y] t))
+    ;(< t 0) (= 0 (get-in @grid-state [x y]))
+    ;:else (do (swap! grid-state assoc-in [x y] t) true))
     false))
 
 ;(defn init-grid [w h]
@@ -79,162 +81,162 @@
         (draw-block x y (get color-map t) ctx)))))
 
 ; orientation 0 :Top 1 :Right 2 :Bottom 3 :Left
-(defmulti draw-tetrimino (fn [{:keys [t o]}] [t o]))
+(defmulti draw-tetrimino (fn [{:keys [t o]} _ _] [t o]))
 
-(defmethod draw-tetrimino [1 0] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid (+ x 2) y (* t d)))]
+(defmethod draw-tetrimino [1 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid (+ x 2) y (* t d) grid))]
     valid))
 
-(defmethod draw-tetrimino [1 1] [{:keys [x y t]} d]
-  (let [valid (set-grid (+ x 1) (+ 1 y) (* t d))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 2) (* t d)))]
+(defmethod draw-tetrimino [1 1] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (+ x 1) (+ 1 y) (* t d) grid)
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 2) (* t d) grid))]
     valid))
 
-(defmethod draw-tetrimino [1 2] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (- y 1) (* t d))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 2) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [1 2] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (- y 1) (* t d) grid)
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 2) (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [1 3] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ 1 y) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid x (- y 2) (* t d)))] valid))
+(defmethod draw-tetrimino [1 3] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ 1 y) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid x (- y 2) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [2 0] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (+ y 1) (* t d))
-        valid (and valid (set-grid (- x 1) y (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))] valid))
+(defmethod draw-tetrimino [2 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (+ y 1) (* t d) grid)
+        valid (and valid (set-grid (- x 1) y (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [2 1] [{:keys [x y t]} d]
-  (let [valid (set-grid (+ x 1) (+ y 1) (* t d))
-        valid (and valid (set-grid x (+ y 1) (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [2 1] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (+ x 1) (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x (+ y 1) (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [2 2] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [2 2] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [2 3] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ y 1) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (- x 1) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [2 3] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (- x 1) (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [3 0] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid (+ x 1) (+ y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [3 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (+ y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [3 1] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ y 1) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [3 1] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [3 2] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (- y 1) (* t d))
-        valid (and valid (set-grid (- x 1) y (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))] valid))
+(defmethod draw-tetrimino [3 2] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (- y 1) (* t d) grid)
+        valid (and valid (set-grid (- x 1) y (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [3 3] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (+ y 1) (* t d))
-        valid (and valid (set-grid x (+ y 1) (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [3 3] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x (+ y 1) (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [4 0] [{:keys [x y t]} d]
-  (let [valid (set-grid x y (* t d))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))] valid))
-(defmethod draw-tetrimino [4 1] [{:keys [x y t]} d] (draw-tetrimino x y t 0 d))
-(defmethod draw-tetrimino [4 2] [{:keys [x y t]} d] (draw-tetrimino x y t 0 d))
-(defmethod draw-tetrimino [4 3] [{:keys [x y t]} d] (draw-tetrimino x y t 0 d))
+(defmethod draw-tetrimino [4 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x y (* t d) grid)
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))] valid))
+(defmethod draw-tetrimino [4 1] [tet d grid] (draw-tetrimino (assoc tet :o 0) d grid))
+(defmethod draw-tetrimino [4 2] [tet d grid] (draw-tetrimino (assoc tet :o 0) d grid))
+(defmethod draw-tetrimino [4 3] [tet d grid] (draw-tetrimino (assoc tet :o 0) d grid))
 
-(defmethod draw-tetrimino [5 0] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (+ y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) (+ y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [5 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (+ y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (+ y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [5 1] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ y 1) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [5 1] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [5 2] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (- y 1) (* t d))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))] valid))
+(defmethod draw-tetrimino [5 2] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (- y 1) (* t d) grid)
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [5 3] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (+ y 1) (* t d))
-        valid (and valid (set-grid (- x 1) y (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [5 3] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (+ y 1) (* t d) grid)
+        valid (and valid (set-grid (- x 1) y (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [6 0] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid x (+ y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [6 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid x (+ y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [6 1] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ y 1) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))] valid))
+(defmethod draw-tetrimino [6 1] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [6 2] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [6 2] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [6 3] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ y 1) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (- x 1) y (* t d)))] valid))
+(defmethod draw-tetrimino [6 3] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (- x 1) y (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [7 0] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) (+ y 1) (* t d))
-        valid (and valid (set-grid x (+ y 1) (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (+ x 1) y (* t d)))] valid))
+(defmethod draw-tetrimino [7 0] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x (+ y 1) (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [7 1] [{:keys [x y t]} d]
-  (let [valid (set-grid (+ x 1) (+ y 1) (* t d))
-        valid (and valid (set-grid (+ x 1) y (* t d)))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [7 1] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (+ x 1) (+ y 1) (* t d) grid)
+        valid (and valid (set-grid (+ x 1) y (* t d) grid))
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [7 2] [{:keys [x y t]} d]
-  (let [valid (set-grid (- x 1) y (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid x (- y 1) (* t d)))
-        valid (and valid (set-grid (+ x 1) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [7 2] [{:keys [x y t]} d grid]
+  (let [valid (set-grid (- x 1) y (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid x (- y 1) (* t d) grid))
+        valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))] valid))
 
-(defmethod draw-tetrimino [7 3] [{:keys [x y t]} d]
-  (let [valid (set-grid x (+ y 1) (* t d))
-        valid (and valid (set-grid x y (* t d)))
-        valid (and valid (set-grid (- x 1) y (* t d)))
-        valid (and valid (set-grid (- x 1) (- y 1) (* t d)))] valid))
+(defmethod draw-tetrimino [7 3] [{:keys [x y t]} d grid]
+  (let [valid (set-grid x (+ y 1) (* t d) grid)
+        valid (and valid (set-grid x y (* t d) grid))
+        valid (and valid (set-grid (- x 1) y (* t d) grid))
+        valid (and valid (set-grid (- x 1) (- y 1) (* t d) grid))] valid))
 
 
 ; removing full lines

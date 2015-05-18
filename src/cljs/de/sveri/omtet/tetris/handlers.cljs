@@ -61,9 +61,7 @@
   :start-game
   (fn [app-state _]
     (. (:timer app-state) (start))
-    ;(minios/init-grid 10 20)
-    (assoc app-state :grid-state (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0))))))
-    app-state))
+    (assoc app-state :grid-state (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0))))))))
 
 (register-handler
   :stop-game
@@ -71,23 +69,26 @@
     (. (:timer app-state) (stop))
     app-state))
 
-(defn draw-or-erase-tetriminio [draw-erase]
-  (minios/draw-tetrimino @minios/global-var draw-erase))
+(defn draw-or-erase-tetriminio [draw-erase cur-tet grid]
+  (println cur-tet)
+  (minios/draw-tetrimino cur-tet draw-erase grid))
 
 (register-handler
   :game-sec-tick
   (fn [app-state]
-    (draw-or-erase-tetriminio 0)
-    (let [cur-tet (:cur-active app-state)]
-      (if (minios/draw-tetrimino (update-in cur-tet [:y] + 1) -1)
-        (do (swap! app-state update-in [:cur-active :y] + 1)
-            (draw-or-erase-tetriminio 1))
-        (do
-          (draw-or-erase-tetriminio 1)
-          (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
-          (minios/set-rand-tetriminio)
-          (if (minios/draw-tetrimino @minios/global-var -1)
-            (draw-or-erase-tetriminio 1)
-            (do (. (:timer app-state) (stop))
-                (js/alert "Game Over!"))))))
+    ;(println (:grid-state app-state))
+    (draw-or-erase-tetriminio 0 (:cur-active app-state) (:grid-state app-state))
+    ;(let [cur-tet (:cur-active app-state)]
+    ;  (if (minios/draw-tetrimino (update-in cur-tet [:y] + 1) -1)
+    ;    (do (swap! app-state update-in [:cur-active :y] + 1)
+    ;        (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state)))
+    ;    (do
+    ;      (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state))
+    ;      (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
+    ;      (minios/set-rand-tetriminio)
+    ;      (if (minios/draw-tetrimino @minios/global-var -1)
+    ;        (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state))
+    ;        (do (. (:timer app-state) (stop))
+    ;            (js/alert "Game Over!"))))))
+
     app-state))

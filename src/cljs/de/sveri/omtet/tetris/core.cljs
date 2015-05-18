@@ -20,8 +20,8 @@
 ;(defn ->canv-ctx [id]
 ;  (.getContext (h/get-elem id) "2d"))
 
-(defn draw-or-erase-tetriminio [draw-erase]
-  (minios/draw-tetrimino @minios/global-var draw-erase))
+;(defn draw-or-erase-tetriminio [draw-erase]
+;  (minios/draw-tetrimino @minios/global-var draw-erase))
 
 ;(defn act-on-keycode [f e]
 ;  (draw-or-erase-tetriminio 0)

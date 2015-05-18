@@ -95,6 +95,7 @@
         valid (and valid (set-grid (+ x 1) y (* t d) grid))
         valid (and valid (set-grid (+ x 1) (- y 1) (* t d) grid))
         valid (and valid (set-grid (+ x 1) (- y 2) (* t d) grid))]
+    (println "val: " valid)
     valid))
 
 (defmethod draw-tetrimino [1 2] [{:keys [x y t]} d grid]

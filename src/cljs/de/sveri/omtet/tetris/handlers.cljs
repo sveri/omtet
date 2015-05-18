@@ -46,8 +46,6 @@
   :initialise-db
   (fn
     [_ _]
-    (println "init")
-
     (set! (.-onkeydown js/document) keydown)
     (let [ctx (->canv-ctx "tetris-canv")
           timer (goog.Timer. 1000)]
@@ -55,7 +53,7 @@
       {:timer      timer
        :ctx        ctx
        :grid-state [[] []]
-       :cur-active {:x 3 :y 1 :o 1 :t 4}})))
+       :cur-active {:x 3 :y 1 :o 1 :t 1}})))
 
 (register-handler
   :start-game
@@ -70,14 +68,14 @@
     app-state))
 
 (defn draw-or-erase-tetriminio [draw-erase cur-tet grid]
-  (println cur-tet)
   (minios/draw-tetrimino cur-tet draw-erase grid))
 
 (register-handler
   :game-sec-tick
   (fn [app-state]
     ;(println (:grid-state app-state))
-    (draw-or-erase-tetriminio 0 (:cur-active app-state) (:grid-state app-state))
+    (let [grid (draw-or-erase-tetriminio 0 (:cur-active app-state) (:grid-state app-state))]
+      (println grid))
     ;(let [cur-tet (:cur-active app-state)]
     ;  (if (minios/draw-tetrimino (update-in cur-tet [:y] + 1) -1)
     ;    (do (swap! app-state update-in [:cur-active :y] + 1)
@@ -91,4 +89,5 @@
     ;        (do (. (:timer app-state) (stop))
     ;            (js/alert "Game Over!"))))))
 
+    ;(minios/draw-grid (:))
     app-state))

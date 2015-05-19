@@ -67,8 +67,8 @@
     (. (:timer app-state) (stop))
     app-state))
 
-(defn draw-or-erase-tetriminio [draw-erase cur-tet grid]
-  (minios/draw-tetrimino cur-tet draw-erase grid))
+;(defn draw-or-erase-tetriminio [draw-erase cur-tet grid]
+;  (minios/draw-tetrimino cur-tet draw-erase grid))
 
 (register-handler
   :game-sec-tick

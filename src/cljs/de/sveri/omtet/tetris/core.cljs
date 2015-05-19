@@ -18,7 +18,10 @@
   (.getContext (h/get-elem id) "2d"))
 
 (defn draw-or-erase-tetriminio [draw-erase]
-  (minios/draw-tetrimino @minios/global-var draw-erase))
+  ;(minios/draw-tetrimino @minios/global-var draw-erase)
+  (reset! minios/grid-state
+          (minios/draw-tet @minios/global-var minios/tet-recipe draw-erase @minios/grid-state))
+  )
 
 (defn act-on-keycode [f e]
   (draw-or-erase-tetriminio 0)
@@ -28,41 +31,47 @@
 (defn keydown [e]
   (condp = (.-keyCode e)
     37 (act-on-keycode
-         #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] - 1) -1)
+         #(when (minios/is-move-allowed? @minios/global-var @minios/grid-state minios/tet-recipe)
+           ;(minios/draw-tetrimino (update-in @minios/global-var [:x] - 1) -1)
            (swap! minios/global-var update-in [:x] - 1))
          e)
-    38 (act-on-keycode
-         #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] (fn [old] (mod (+ 1 old) 4))) -1)
-           (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4))))
-         e)
-    39 (act-on-keycode
-         #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] + 1) -1)
-           (swap! minios/global-var update-in [:x] + 1))
-         e)
-    40 (act-on-keycode
-         #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-           (swap! minios/global-var update-in [:y] + 1))
-         e)
-    32 (act-on-keycode
-         #(while (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-           (swap! minios/global-var update-in [:y] + 1))
-         e)
+    ;37 (act-on-keycode
+    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] - 1) -1)
+    ;       (swap! minios/global-var update-in [:x] - 1))
+    ;     e)
+    ;38 (act-on-keycode
+    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] (fn [old] (mod (+ 1 old) 4))) -1)
+    ;       (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4))))
+    ;     e)
+    ;39 (act-on-keycode
+    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] + 1) -1)
+    ;       (swap! minios/global-var update-in [:x] + 1))
+    ;     e)
+    ;40 (act-on-keycode
+    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
+    ;       (swap! minios/global-var update-in [:y] + 1))
+    ;     e)
+    ;32 (act-on-keycode
+    ;     #(while (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
+    ;       (swap! minios/global-var update-in [:y] + 1))
+    ;     e)
     nil)
   (draw-or-erase-tetriminio 1))
 
 (defn tick []
-  (draw-or-erase-tetriminio 0)
-  (if (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-    (do (swap! minios/global-var update-in [:y] + 1)
-        (draw-or-erase-tetriminio 1))
-    (do
-      (draw-or-erase-tetriminio 1)
-      (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
-      (minios/set-rand-tetriminio)
-      (if (minios/draw-tetrimino @minios/global-var -1)
-        (draw-or-erase-tetriminio 1)
-        (do (. timer (stop))
-            (js/alert "Game Over!"))))))
+  ;(draw-or-erase-tetriminio 0)
+  ;(if (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
+  ;  (do (swap! minios/global-var update-in [:y] + 1)
+  ;      (draw-or-erase-tetriminio 1))
+  ;  (do
+  ;    (draw-or-erase-tetriminio 1)
+  ;    (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
+  ;    (minios/set-rand-tetriminio)
+  ;    (if (minios/draw-tetrimino @minios/global-var -1)
+  ;      (draw-or-erase-tetriminio 1)
+  ;      (do (. timer (stop))
+  ;          (js/alert "Game Over!")))))
+  )
 
 (defn init-tetris []
   (let [ctx (->canv-ctx tet-id)]

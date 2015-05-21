@@ -6,19 +6,18 @@
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
 (defn move-on-keypress [app-state update-fn e]
-  (.preventDefault e)
   (let [cur-active (:cur-active app-state)
         cur-grid (:grid-state app-state)
-        remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
+        remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)
+        one-move-grid (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid)]
 
     (if (minios/is-move-allowed? (update-fn) cur-grid minios/tet-recipe)
-      (assoc app-state :cur-active (update-fn) :grid-state remove-cur-grid)
+      (assoc app-state :cur-active (update-fn) :grid-state one-move-grid)
       app-state)))
 
 (register-handler
   :keypressed
   (fn [app-state [_ e]]
-    (dispatch [:draw-grid])
     (condp = (.-keyCode e)
       37 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] - 1) e)
       38 (move-on-keypress app-state #(update-in (:cur-active app-state) [:o] (fn [old] (mod (+ 1 old) 4))) e)
@@ -27,17 +26,17 @@
       app-state)))
 
 (defn keydown [e]
+  (when (h/in? [37 38 39 40] (.-keyCode e)) (.preventDefault e))
   (dispatch [:keypressed e]))
-
-(defn ->canv-ctx [id]
-  (.getContext (h/get-elem id) "2d"))
 
 (register-handler
   :initialise-db
   (fn
     [_ _]
-    (set! (.-onkeydown js/document) keydown)
-    (let [ctx (->canv-ctx "tetris-canv")
+    (set! (.-onkeydown js/document) (fn [e] (keydown e)
+                                      ;(.preventDefault e)
+                                      ))
+    (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
           timer (goog.Timer. 1000)]
       (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
       {:timer      timer
@@ -52,14 +51,8 @@
     (let [cur-active (:cur-active app-state)
           empty-grid (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0)))))
           one-move-grid (minios/draw-tet cur-active minios/tet-recipe 1 empty-grid)]
-      (dispatch [:draw-grid])
+      (minios/draw-grid one-move-grid (:ctx app-state))
       (assoc app-state :grid-state one-move-grid))))
-
-(register-handler
-  :draw-grid
-  (fn [app-state _]
-    (minios/draw-grid (:grid-state app-state) (:ctx app-state))
-    app-state))
 
 (register-handler
   :stop-game
@@ -70,7 +63,7 @@
 (register-handler
   :game-sec-tick
   (fn [app-state]
-    (dispatch [:draw-grid])
+    ;(dispatch [:draw-grid])
     (let [cur-active (:cur-active app-state)
           cur-grid (:grid-state app-state)
           remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
@@ -82,12 +75,8 @@
         (let [new-act (minios/get-rand-tetriminio)]
               (assoc app-state :cur-active new-act)))
 
-      ;(println (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid))
 
-      ;(let [cur-tet (:cur-active app-state)]
-      ;  (if (minios/draw-tetrimino (update-in cur-tet [:y] + 1) -1)
-      ;    (do (swap! app-state update-in [:cur-active :y] + 1)
-      ;        (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state)))
+      ;app-state
       ;    (do
       ;      (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state))
       ;      (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
@@ -96,7 +85,4 @@
       ;        (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state))
       ;        (do (. (:timer app-state) (stop))
       ;            (js/alert "Game Over!"))))))
-
-      ;(minios/draw-grid (:))
-      ;(assoc app-state :grid-state (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid))
       )))

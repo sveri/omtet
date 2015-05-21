@@ -3,7 +3,7 @@
             de.sveri.omtet.tetris.subs
             [cljs.core.async :refer [chan close! put!]]
             [reagent.core :as reagent]
-            [de.sveri.omtet.tetris.tetriminios :as minios]
+            ;[de.sveri.omtet.tetris.tetriminios :as minios]
             [de.sveri.omtet.helper :as h]
             ;[goog.events :as ev]
             [goog.Timer]
@@ -25,30 +25,18 @@
 ;        (draw-or-erase-tetriminio 1)
 ;        (do (. timer (stop))
 ;            (js/alert "Game Over!"))))))
-;
-;(defn init-tetris []
-;  (let [ctx (->canv-ctx "tetris-canv")]
-;    (add-watch minios/grid-state :grid-state
-;               (fn [_ _ _ nv]
-;                 (minios/draw-grid nv ctx)))
-;    (set! (.-onkeydown js/document) keydown)))
-;
-;(defn start-game []
-;  (. timer (stop))
-;  (minios/init-grid 10 20)
-;  (minios/set-rand-tetriminio)
-;  (ev/listen timer goog.Timer/TICK tick)
-;  (. timer (start)))
 
 (defn core []
-  (let [tet-width "200px"]
+  (let [tet-width "200px"
+        footer-stats (re-frame/subscribe [:grid-changed])
+        ]
+
     [:div.row
     [:div.col-md-3
      [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
      [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} "Score: 0"]]
     [:div.col-md-3
      [:button.btn.btn-primary {:on-click #(re-frame/dispatch [:start-game])} "Start Game"]
-     ;[:button.btn.btn-primary {:on-click start-game} "Start Game"]
      [:button.btn.btn-primary {:on-click #(re-frame/dispatch [:stop-game])} "Stop Game"]
      ]]))
 

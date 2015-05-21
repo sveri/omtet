@@ -1,9 +1,10 @@
-(ns de.sveri.omtet.tetris.tetriminios)
+(ns de.sveri.omtet.tetris.tetriminios
+  (:require [de.sveri.omtet.helper :as h]))
 
 (defonce color-map {1 180 2 240 3 40 4 60 5 120 6 280 7 0})
 
 ;(def grid-state (atom [[] []]))
-(def global-var (atom {:x 1 :y 1 :o 1 :t 4}))
+;(def global-var (atom {:x 1 :y 1 :o 1 :t 4}))
 
 (defn get-rand-tetriminio [] {:x 1 :y 1 :o 0 :t (+ 1 (Math/floor (* 7 (Math/random))))})
 
@@ -60,10 +61,6 @@
 
 
 
-(defn not-in?
-  "true if seq contains elm"
-  [seq elm]
-  (not (some #(= elm %) seq)))
 
 (defn is-moving-part-allowed? [x y t grid]
   (if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
@@ -79,7 +76,7 @@
 
 (defn is-move-allowed? [{:keys [x y t o]} grid tet-recipe]
   (let [new-position (map #(move-x-y x y %) (get-in tet-recipe [t o]))]
-    (not-in? (map #(is-moving-part-allowed? (:x %) (:y %) t grid) new-position) false)))
+    (h/not-in? (map #(is-moving-part-allowed? (:x %) (:y %) t grid) new-position) false)))
 
 (defn realize-move [x y t grid]
   (assoc-in grid [x y] t))

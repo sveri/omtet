@@ -16,6 +16,13 @@
       app-state)))
 
 (register-handler
+  :move-one-down
+  (fn [app-state _]
+    (when (minios/is-move-allowed? (update-in (:cur-active app-state) [:y] + 2) (:cur-grid app-state) minios/tet-recipe)
+      (dispatch [:move-one-down]))
+    (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1) nil)))
+
+(register-handler
   :keypressed
   (fn [app-state [_ e]]
     (condp = (.-keyCode e)
@@ -23,19 +30,19 @@
       38 (move-on-keypress app-state #(update-in (:cur-active app-state) [:o] (fn [old] (mod (+ 1 old) 4))) e)
       39 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] + 1) e)
       40 (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1) e)
+      32 (dispatch [:move-one-down])
       app-state)))
 
+
 (defn keydown [e]
-  (when (h/in? [37 38 39 40] (.-keyCode e)) (.preventDefault e))
+  (when (h/in? [32 37 38 39 40] (.-keyCode e)) (.preventDefault e))
   (dispatch [:keypressed e]))
 
 (register-handler
   :initialise-db
   (fn
     [_ _]
-    (set! (.-onkeydown js/document) (fn [e] (keydown e)
-                                      ;(.preventDefault e)
-                                      ))
+    (set! (.-onkeydown js/document) keydown)
     (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
           timer (goog.Timer. 1000)]
       (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))

@@ -63,29 +63,36 @@
 
 
 (defn is-moving-part-allowed? [x y t grid]
-  (if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
-    (cond
-      (< t 0) (= 0 (get-in grid [x y]))
-      :else true)
-    false))
+  (when-not (and (<= 0 x) (< x 10) (<= 0 y) (< y 20) (= 0 (get-in grid [x y])))
+    (println "false ? " x y grid))
+
+  ;(if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
+  ;  ;(cond
+  ;  ;  (< t 0)
+  ;  (= 0 (get-in grid [x y]))
+  ;    ;:else true)
+  ;  false)
+  (and (<= 0 x) (< x 10) (<= 0 y) (< y 20) (= 0 (get-in grid [x y]))))
 
 (defn move-x-y [x y rec]
   (let [x' (if (get rec :x) ((get rec :x) x) x)
         y' (if (get rec :y) ((get rec :y) y) y)]
     {:x x' :y y'}))
 
-(defn is-move-allowed? [{:keys [x y t o]} grid tet-recipe]
-  (let [new-position (map #(move-x-y x y %) (get-in tet-recipe [t o]))]
-    (h/not-in? (map #(is-moving-part-allowed? (:x %) (:y %) t grid) new-position) false)))
-
 (defn realize-move [x y t grid]
   (assoc-in grid [x y] t))
 
 (defn draw-tet [{:keys [x y t o] :as cur-tet} tet-recipe d grid]
   (let [new-position (map #(move-x-y x y %) (get-in tet-recipe [t o]))]
-    (if (is-move-allowed? cur-tet grid tet-recipe)
+    ;(if (is-move-allowed? cur-tet grid tet-recipe)
       (reduce (fn [a b] (realize-move (:x b) (:y b) (* t d) a)) grid new-position)
-      grid)))
+      ;grid)
+  ))
+
+(defn is-move-allowed? [{:keys [x y t o]} cur-active grid tet-recipe]
+  (let [new-position (map #(move-x-y x y %) (get-in tet-recipe [t o]))
+        removed-grid (draw-tet cur-active tet-recipe 0 grid)]
+    (h/not-in? (map #(is-moving-part-allowed? (:x %) (:y %) t removed-grid) new-position) false)))
 
 
 

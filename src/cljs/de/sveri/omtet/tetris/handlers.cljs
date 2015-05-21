@@ -5,31 +5,33 @@
             [de.sveri.omtet.helper :as h]
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
-(defn move-on-keypress [app-state update-fn e]
+(defn move-on-keypress [app-state update-fn]
   (let [cur-active (:cur-active app-state)
         cur-grid (:grid-state app-state)
         remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)
-        one-move-grid (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid)]
+        ;one-move-grid (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid)
+        ]
 
-    (if (minios/is-move-allowed? (update-fn) cur-grid minios/tet-recipe)
-      (assoc app-state :cur-active (update-fn) :grid-state one-move-grid)
+    (if (minios/is-move-allowed? (update-fn) cur-active cur-grid minios/tet-recipe)
+      (assoc app-state :cur-active (update-fn) :grid-state (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid))
       app-state)))
 
 (register-handler
   :move-one-down
   (fn [app-state _]
-    (when (minios/is-move-allowed? (update-in (:cur-active app-state) [:y] + 2) (:cur-grid app-state) minios/tet-recipe)
+    (when (minios/is-move-allowed? (update-in (:cur-active app-state) [:y] + 2) (:cur-active app-state)
+                                   (:cur-grid app-state) minios/tet-recipe)
       (dispatch [:move-one-down]))
-    (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1) nil)))
+    (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1))))
 
 (register-handler
   :keypressed
   (fn [app-state [_ e]]
     (condp = (.-keyCode e)
-      37 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] - 1) e)
-      38 (move-on-keypress app-state #(update-in (:cur-active app-state) [:o] (fn [old] (mod (+ 1 old) 4))) e)
-      39 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] + 1) e)
-      40 (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1) e)
+      37 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] - 1))
+      38 (move-on-keypress app-state #(update-in (:cur-active app-state) [:o] (fn [old] (mod (+ 1 old) 4))))
+      39 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] + 1))
+      40 (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1))
       32 (dispatch [:move-one-down])
       app-state)))
 
@@ -40,8 +42,7 @@
 
 (register-handler
   :initialise-db
-  (fn
-    [_ _]
+  (fn [_ _]
     (set! (.-onkeydown js/document) keydown)
     (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
           timer (goog.Timer. 1000)]
@@ -70,12 +71,11 @@
 (register-handler
   :game-sec-tick
   (fn [app-state]
-    ;(dispatch [:draw-grid])
     (let [cur-active (:cur-active app-state)
           cur-grid (:grid-state app-state)
           remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
 
-      (if (minios/is-move-allowed? (update-in cur-active [:y] + 1) remove-cur-grid minios/tet-recipe)
+      (if (minios/is-move-allowed? (update-in cur-active [:y] + 1) cur-active remove-cur-grid minios/tet-recipe)
         (let [moved-active (update-in cur-active [:y] + 1)
               moved-grid (minios/draw-tet moved-active minios/tet-recipe 1 remove-cur-grid)]
           (assoc app-state :grid-state moved-grid :cur-active moved-active))

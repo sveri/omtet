@@ -12,48 +12,6 @@
   (:import [goog.events KeyHandler]
            [goog.events.KeyHandler EventType]))
 
-;(defonce tet-width "200px")
-;(defonce tet-id "tetris-canv")
-
-;(defonce timer (goog.Timer. 1000))
-;
-;(defn ->canv-ctx [id]
-;  (.getContext (h/get-elem id) "2d"))
-
-;(defn draw-or-erase-tetriminio [draw-erase]
-;  (minios/draw-tetrimino @minios/global-var draw-erase))
-
-;(defn act-on-keycode [f e]
-;  (draw-or-erase-tetriminio 0)
-;  (f)
-;  (.preventDefault e))
-;
-;(defn keydown [e]
-;  (condp = (.-keyCode e)
-;    37 (act-on-keycode
-;         #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] - 1) -1)
-;           (swap! minios/global-var update-in [:x] - 1))
-;         e)
-;    38 (act-on-keycode
-;         #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] (fn [old] (mod (+ 1 old) 4))) -1)
-;           (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4))))
-;         e)
-;    39 (act-on-keycode
-;         #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] + 1) -1)
-;           (swap! minios/global-var update-in [:x] + 1))
-;         e)
-;    40 (act-on-keycode
-;         #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-;           (swap! minios/global-var update-in [:y] + 1))
-;         e)
-;    32 (act-on-keycode
-;         #(while (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-;           (swap! minios/global-var update-in [:y] + 1))
-;         e)
-;    nil)
-;
-;  (draw-or-erase-tetriminio 1))
-
 ;(defn tick []
 ;  (draw-or-erase-tetriminio 0)
 ;  (if (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)

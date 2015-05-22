@@ -17,7 +17,7 @@
                  [ring-server "0.4.0"]
                  [ring/ring-anti-forgery "1.0.0"]
                  [compojure "1.3.1"]
-                 [reagent "0.4.3"]
+                 [reagent "0.5.0"]
                  [figwheel "0.2.6"]
                  [environ "1.0.0"]
                  [com.cemerick/piggieback "0.1.5"]
@@ -56,7 +56,9 @@
                  [datascript "0.9.0"]
                  [org.clojars.franks42/cljs-uuid-utils "0.1.3"]
 
-                 [net.tanesha.recaptcha4j/recaptcha4j "0.0.8"]]
+                 [net.tanesha.recaptcha4j/recaptcha4j "0.0.8"]
+
+                 [re-frame "0.4.0"]]
 
   :plugins [[com.keminglabs/cljx "0.5.0"]
             [de.sveri/closp-crud "0.1.0"]

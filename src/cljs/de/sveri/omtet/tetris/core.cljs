@@ -1,105 +1,52 @@
 (ns de.sveri.omtet.tetris.core
-  (:require [cljs.core.async :refer [chan close! put!]]
+  (:require de.sveri.omtet.tetris.handlers
+            de.sveri.omtet.tetris.subs
+            [cljs.core.async :refer [chan close! put!]]
             [reagent.core :as reagent]
-            [de.sveri.omtet.tetris.tetriminios :as minios]
+            ;[de.sveri.omtet.tetris.tetriminios :as minios]
             [de.sveri.omtet.helper :as h]
-            [goog.events :as ev]
-            [goog.Timer])
+            ;[goog.events :as ev]
+            [goog.Timer]
+            [re-frame.core :as re-frame])
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:import [goog.events KeyHandler]
            [goog.events.KeyHandler EventType]))
 
-(defonce tet-width "200px")
-(defonce tet-id "tetris-canv")
-
-(defonce timer (goog.Timer. 1000))
-
-(defn ->canv-ctx [id]
-  (.getContext (h/get-elem id) "2d"))
-
-(defn draw-or-erase-tetriminio [draw-erase]
-  ;(minios/draw-tetrimino @minios/global-var draw-erase)
-  (reset! minios/grid-state
-          (minios/draw-tet @minios/global-var minios/tet-recipe draw-erase @minios/grid-state))
-  )
-
-(defn act-on-keycode [f e]
-  (draw-or-erase-tetriminio 0)
-  (f)
-  (.preventDefault e))
-
-(defn keydown [e]
-  (condp = (.-keyCode e)
-    37 (act-on-keycode
-         #(when (minios/is-move-allowed? @minios/global-var @minios/grid-state minios/tet-recipe)
-           ;(minios/draw-tetrimino (update-in @minios/global-var [:x] - 1) -1)
-           (swap! minios/global-var update-in [:x] - 1))
-         e)
-    ;37 (act-on-keycode
-    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] - 1) -1)
-    ;       (swap! minios/global-var update-in [:x] - 1))
-    ;     e)
-    ;38 (act-on-keycode
-    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] (fn [old] (mod (+ 1 old) 4))) -1)
-    ;       (swap! minios/global-var update-in [:o] (fn [old] (mod (+ 1 old) 4))))
-    ;     e)
-    ;39 (act-on-keycode
-    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:x] + 1) -1)
-    ;       (swap! minios/global-var update-in [:x] + 1))
-    ;     e)
-    ;40 (act-on-keycode
-    ;     #(when (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-    ;       (swap! minios/global-var update-in [:y] + 1))
-    ;     e)
-    ;32 (act-on-keycode
-    ;     #(while (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-    ;       (swap! minios/global-var update-in [:y] + 1))
-    ;     e)
-    nil)
-  (draw-or-erase-tetriminio 1))
-
-(defn tick []
-  ;(draw-or-erase-tetriminio 0)
-  ;(if (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
-  ;  (do (swap! minios/global-var update-in [:y] + 1)
-  ;      (draw-or-erase-tetriminio 1))
-  ;  (do
-  ;    (draw-or-erase-tetriminio 1)
-  ;    (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
-  ;    (minios/set-rand-tetriminio)
-  ;    (if (minios/draw-tetrimino @minios/global-var -1)
-  ;      (draw-or-erase-tetriminio 1)
-  ;      (do (. timer (stop))
-  ;          (js/alert "Game Over!")))))
-  )
-
-(defn init-tetris []
-  (let [ctx (->canv-ctx tet-id)]
-    (add-watch minios/grid-state :grid-state
-               (fn [_ _ _ nv]
-                 (minios/draw-grid nv ctx)))
-    (set! (.-onkeydown js/document) keydown)))
-
-(defn start-game []
-  (. timer (stop))
-  (minios/init-grid 10 20)
-  (minios/set-rand-tetriminio)
-  (ev/listen timer goog.Timer/TICK tick)
-  (. timer (start)))
+;(defn tick []
+;  (draw-or-erase-tetriminio 0)
+;  (if (minios/draw-tetrimino (update-in @minios/global-var [:y] + 1) -1)
+;    (do (swap! minios/global-var update-in [:y] + 1)
+;        (draw-or-erase-tetriminio 1))
+;    (do
+;      (draw-or-erase-tetriminio 1)
+;      (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
+;      (minios/set-rand-tetriminio)
+;      (if (minios/draw-tetrimino @minios/global-var -1)
+;        (draw-or-erase-tetriminio 1)
+;        (do (. timer (stop))
+;            (js/alert "Game Over!"))))))
 
 (defn core []
-  [:div.row
-   [:div.col-md-3
-    [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
-    [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} "Score: 0"]]
-   [:div.col-md-3
-    [:button.btn.btn-primary {:on-click start-game} "Start Game"]
-    [:button.btn.btn-primary {:on-click #(. timer (stop))} "Stop Game"]]])
+  (let [tet-width "200px"
+        footer-stats (re-frame/subscribe [:grid-changed])
+        ]
+
+    [:div.row
+    [:div.col-md-3
+     [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
+     [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} "Score: 0"]]
+    [:div.col-md-3
+     [:button.btn.btn-primary {:on-click #(re-frame/dispatch [:start-game])} "Start Game"]
+     [:button.btn.btn-primary {:on-click #(re-frame/dispatch [:stop-game])} "Stop Game"]
+     ]]))
 
 (defn init-core []
   (reagent/create-class
     {:render              (fn [] [core])
-     :component-did-mount #(init-tetris)}))
+     ;:component-did-mount #(init-tetris)
+      }
+    ))
 
 (defn ^:export main []
+  (re-frame/dispatch [:initialise-db])
   (reagent/render-component (fn [] [init-core]) (h/get-elem "tetris-main")))

@@ -44,6 +44,7 @@
     (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
           timer (goog.Timer. 1000)]
       (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
+      ;(dispatch [:game-sec-tick])
       {:timer      timer
        :ctx        ctx
        :grid-state [[] []]
@@ -66,27 +67,28 @@
     app-state))
 
 (register-handler
+  :game-over
+  (fn [app-state]
+    (. (:timer app-state) (stop))
+    (js/alert "Game Over!")
+    app-state))
+
+(defn move-tick [app-state]
+  (let [cur-active (:cur-active app-state)
+        cur-grid (:grid-state app-state)
+        remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
+
+    (if (minios/is-move-allowed? (update-in cur-active [:y] + 1) cur-active remove-cur-grid minios/tet-recipe)
+      (let [moved-active (update-in cur-active [:y] + 1)
+            moved-grid (minios/draw-tet moved-active minios/tet-recipe 1 remove-cur-grid)]
+        (assoc app-state :grid-state moved-grid :cur-active moved-active))
+      (let [new-act (minios/get-rand-tetriminio)]
+        (if (minios/is-move-allowed? (update-in new-act [:y] + 1) cur-active cur-grid minios/tet-recipe)
+          (assoc app-state :cur-active new-act)
+          (do (dispatch [:game-over]) app-state))))))
+
+(register-handler
   :game-sec-tick
   (fn [app-state]
-    (let [cur-active (:cur-active app-state)
-          cur-grid (:grid-state app-state)
-          remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
-
-      (if (minios/is-move-allowed? (update-in cur-active [:y] + 1) cur-active remove-cur-grid minios/tet-recipe)
-        (let [moved-active (update-in cur-active [:y] + 1)
-              moved-grid (minios/draw-tet moved-active minios/tet-recipe 1 remove-cur-grid)]
-          (assoc app-state :grid-state moved-grid :cur-active moved-active))
-        (let [new-act (minios/get-rand-tetriminio)]
-              (assoc app-state :cur-active new-act)))
-
-
-      ;app-state
-      ;    (do
-      ;      (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state))
-      ;      (reset! minios/grid-state (minios/remove-full-lines @minios/grid-state))
-      ;      (minios/set-rand-tetriminio)
-      ;      (if (minios/draw-tetrimino @minios/global-var -1)
-      ;        (draw-or-erase-tetriminio 1 (:cur-active app-state) (:grid-state app-state))
-      ;        (do (. (:timer app-state) (stop))
-      ;            (js/alert "Game Over!"))))))
-      )))
+    (let [moved-app-state (move-tick app-state)]
+      (assoc moved-app-state :grid-state (minios/remove-full-lines (:grid-state moved-app-state))))))

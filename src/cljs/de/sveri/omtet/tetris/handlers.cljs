@@ -8,10 +8,7 @@
 (defn move-on-keypress [app-state update-fn]
   (let [cur-active (:cur-active app-state)
         cur-grid (:grid-state app-state)
-        remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)
-        ;one-move-grid (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid)
-        ]
-
+        remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
     (if (minios/is-move-allowed? (update-fn) cur-active cur-grid minios/tet-recipe)
       (assoc app-state :cur-active (update-fn) :grid-state (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid))
       app-state)))
@@ -20,7 +17,7 @@
   :move-one-down
   (fn [app-state _]
     (when (minios/is-move-allowed? (update-in (:cur-active app-state) [:y] + 2) (:cur-active app-state)
-                                   (:cur-grid app-state) minios/tet-recipe)
+                                   (:grid-state app-state) minios/tet-recipe)
       (dispatch [:move-one-down]))
     (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1))))
 
@@ -32,7 +29,7 @@
       38 (move-on-keypress app-state #(update-in (:cur-active app-state) [:o] (fn [old] (mod (+ 1 old) 4))))
       39 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] + 1))
       40 (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1))
-      32 (dispatch [:move-one-down])
+      32 (do (dispatch [:move-one-down]) app-state)
       app-state)))
 
 

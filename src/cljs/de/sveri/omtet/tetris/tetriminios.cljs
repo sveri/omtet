@@ -60,18 +60,9 @@
     (draw-block-bottom x' y' ctx)))
 
 
-
-
 (defn is-moving-part-allowed? [x y t grid]
-  (when-not (and (<= 0 x) (< x 10) (<= 0 y) (< y 20) (= 0 (get-in grid [x y])))
-    (println "false ? " x y grid))
-
-  ;(if (and (<= 0 x) (< x 10) (<= 0 y) (< y 20))
-  ;  ;(cond
-  ;  ;  (< t 0)
-  ;  (= 0 (get-in grid [x y]))
-  ;    ;:else true)
-  ;  false)
+  ;(when-not (and (<= 0 x) (< x 10) (<= 0 y) (< y 20) (= 0 (get-in grid [x y])))
+  ;  (println "false ? " x y grid))
   (and (<= 0 x) (< x 10) (<= 0 y) (< y 20) (= 0 (get-in grid [x y]))))
 
 (defn move-x-y [x y rec]
@@ -92,6 +83,7 @@
 (defn is-move-allowed? [{:keys [x y t o]} cur-active grid tet-recipe]
   (let [new-position (map #(move-x-y x y %) (get-in tet-recipe [t o]))
         removed-grid (draw-tet cur-active tet-recipe 0 grid)]
+    ;(println "removed " grid)
     (h/not-in? (map #(is-moving-part-allowed? (:x %) (:y %) t removed-grid) new-position) false)))
 
 

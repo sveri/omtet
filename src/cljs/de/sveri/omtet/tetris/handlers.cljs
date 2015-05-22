@@ -5,12 +5,12 @@
             [de.sveri.omtet.helper :as h]
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
-(defn move-on-keypress [app-state update-fn]
+(defn move-on-keypress [app-state move-fn]
   (let [cur-active (:cur-active app-state)
         cur-grid (:grid-state app-state)
         remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]
-    (if (minios/is-move-allowed? (update-fn) cur-active cur-grid minios/tet-recipe)
-      (assoc app-state :cur-active (update-fn) :grid-state (minios/draw-tet (update-fn) minios/tet-recipe 1 remove-cur-grid))
+    (if (minios/is-move-allowed? (move-fn) cur-active cur-grid minios/tet-recipe)
+      (assoc app-state :cur-active (move-fn) :grid-state (minios/draw-tet (move-fn) minios/tet-recipe 1 remove-cur-grid))
       app-state)))
 
 (register-handler
@@ -44,7 +44,6 @@
     (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
           timer (goog.Timer. 1000)]
       (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
-      ;(dispatch [:game-sec-tick])
       {:timer      timer
        :ctx        ctx
        :grid-state [[] []]
@@ -73,7 +72,7 @@
     (js/alert "Game Over!")
     app-state))
 
-(defn move-tick [app-state]
+(defn- move-tick [app-state]
   (let [cur-active (:cur-active app-state)
         cur-grid (:grid-state app-state)
         remove-cur-grid (minios/draw-tet cur-active minios/tet-recipe 0 cur-grid)]

@@ -1,43 +1,40 @@
 (ns de.sveri.omtet.tetris.tetriminios
   (:require [de.sveri.omtet.helper :as h]))
 
-(defn get-rand-tetriminio [] {:x 1 :y 1 :o 0 :t 5})
-;(defn get-rand-tetriminio [] {:x 1 :y 1 :o 0 :t (+ 1 (Math/floor (* 7 (Math/random))))})
+;(defn get-rand-tetriminio [] {:x 1 :y 1 :o 0 :t 5})
+(defn get-rand-tetriminio [] {:x 1 :y 1 :o 0 :t (+ 1 (Math/floor (* 7 (Math/random))))})
 
 (defonce color-map {1 180 2 240 3 40 4 60 5 120 6 280 7 0})
 
 ;; drawing related
-(defn draw-block-top [x y ctx]
+(defn draw-block-x [ctx & [line-to-fns]]
   (.beginPath ctx)
-  (.moveTo ctx x y)
-  (.lineTo ctx (+ 20 x) y)
-  (.lineTo ctx (+ 18 x) (+ 2 y))
-  (.lineTo ctx (+ 2 x) (+ 2 y))
+  (doseq [f line-to-fns] (f))
   (.fill ctx))
+
+(defn draw-block-top [x y ctx]
+  (draw-block-x ctx [#(.moveTo ctx x y)
+                         #(.lineTo ctx (+ 20 x) y)
+                         #(.lineTo ctx (+ 18 x) (+ 2 y))
+                         #(.lineTo ctx (+ 2 x) (+ 2 y))]))
 
 (defn draw-block-left [x y ctx]
-  (.beginPath ctx)
-  (.moveTo ctx x y)
-  (.lineTo ctx x (+ 20 y))
-  (.lineTo ctx (+ 2 x) (+ 18 y))
-  (.lineTo ctx (+ 2 x) (+ 2 y))
-  (.fill ctx))
+  (draw-block-x ctx [#(.moveTo ctx x y)
+                     #(.lineTo ctx x (+ 20 y))
+                     #(.lineTo ctx (+ 2 x) (+ 18 y))
+                     #(.lineTo ctx (+ 2 x) (+ 2 y))]))
 
 (defn draw-block-right [x y ctx]
-  (.beginPath ctx)
-  (.moveTo ctx (+ 20 x) y)
-  (.lineTo ctx (+ 20 x) (+ 20 y))
-  (.lineTo ctx (+ 18 x) (+ 18 y))
-  (.lineTo ctx (+ 18 x) (+ 2 y))
-  (.fill ctx))
+  (draw-block-x ctx [#(.moveTo ctx (+ 20 x) y)
+                     #(.lineTo ctx (+ 20 x) (+ 20 y))
+                     #(.lineTo ctx (+ 18 x) (+ 18 y))
+                     #(.lineTo ctx (+ 18 x) (+ 2 y))]))
 
 (defn draw-block-bottom [x y ctx]
-  (.beginPath ctx)
-  (.moveTo ctx x (+ 20 y))
-  (.lineTo ctx (+ 20 x) (+ 20 y))
-  (.lineTo ctx (+ 18 x) (+ 18 y))
-  (.lineTo ctx (+ 2 x) (+ 18 y))
-  (.fill ctx))
+  (draw-block-x ctx [#(.moveTo ctx x (+ 20 y))
+                     #(.lineTo ctx (+ 20 x) (+ 20 y))
+                     #(.lineTo ctx (+ 18 x) (+ 18 y))
+                     #(.lineTo ctx (+ 2 x) (+ 18 y))]))
 
 
 (defn draw-block [x y h ctx]
@@ -104,12 +101,6 @@
       1 [{} {:x #(+ % 1)} {:y #(- % 1)} {:x #(+ % 1) :y #(- % 1)}]
       2 [{} {:x #(+ % 1)} {:y #(- % 1)} {:x #(+ % 1) :y #(- % 1)}]
       3 [{} {:x #(+ % 1)} {:y #(- % 1)} {:x #(+ % 1) :y #(- % 1)}]}
-
-   ;; correct purple t
-   ;5 {0 [{:x #(- % 1)} {} {:x #(+ % 1)} {:y #(+ % 1)}]
-   ;   1 [{:y #(+ % 1)} {} {:y #(- % 1)} {:x #(+ % 1)}]
-   ;   2 [{:x #(- % 1)} {} {:x #(+ % 1)} {} {:y #(- % 1)}]
-   ;   3 [{:y #(+ % 1)} {} {:y #(- % 1)} {:x #(- % 1)}]}
    5 {0 [{:x #(- % 1)} {} {:y #(+ % 1)} {:x #(+ % 1) :y #(+ % 1)}]
       1 [{:y #(+ % 1)} {} {:x #(+ % 1)} {:x #(+ % 1) :y #(- % 1)}]
       2 [{:x #(- % 1) :y #(- % 1)} {:y #(- % 1)} {} {:x #(+ % 1)}]

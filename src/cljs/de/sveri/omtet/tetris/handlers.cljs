@@ -1,9 +1,12 @@
 (ns de.sveri.omtet.tetris.handlers
   (:require [goog.Timer]
             [goog.events :as ev]
-            [re-frame.core :refer [register-handler, dispatch]]
+            [re-frame.core :as rf :refer [register-handler, dispatch]]
             [de.sveri.omtet.helper :as h]
             [de.sveri.omtet.tetris.tetriminios :as minios]))
+
+(defn grid-changed-mw [app-state]
+  (when (:grid-state app-state) (minios/draw-grid (:grid-state app-state) (:ctx app-state))))
 
 (defn move-on-keypress [app-state move-fn]
   (let [cur-active (:cur-active app-state)
@@ -15,6 +18,7 @@
 
 (register-handler
   :move-one-down
+  (rf/after grid-changed-mw)
   (fn [app-state _]
     (when (minios/is-move-allowed? (update-in (:cur-active app-state) [:y] + 2) (:cur-active app-state)
                                    (:grid-state app-state) minios/tet-recipe)
@@ -23,6 +27,7 @@
 
 (register-handler
   :keypressed
+  (rf/after grid-changed-mw)
   (fn [app-state [_ e]]
     (condp = (.-keyCode e)
       37 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] - 1))
@@ -32,13 +37,13 @@
       32 (do (dispatch [:move-one-down]) app-state)
       app-state)))
 
-
 (defn keydown [e]
   (when (h/in? [32 37 38 39 40] (.-keyCode e)) (.preventDefault e))
   (dispatch [:keypressed e]))
 
 (register-handler
   :initialise-db
+  (rf/after grid-changed-mw)
   (fn [_ _]
     (set! (.-onkeydown js/document) keydown)
     (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
@@ -47,10 +52,11 @@
       {:timer      timer
        :ctx        ctx
        :grid-state [[] []]
-       :cur-active {:x 1 :y 2 :o 1 :t 1}})))
+       :cur-active {:x 1 :y 2 :o 3 :t 5}})))
 
 (register-handler
   :start-game
+  (rf/after grid-changed-mw)
   (fn [app-state _]
     (. (:timer app-state) (start))
     (let [cur-active (:cur-active app-state)
@@ -69,7 +75,7 @@
   :game-over
   (fn [app-state]
     (. (:timer app-state) (stop))
-    (js/alert "Game Over!")
+    ;(js/alert "Game Over!")
     app-state))
 
 (defn- move-tick [app-state]
@@ -88,6 +94,7 @@
 
 (register-handler
   :game-sec-tick
+  (rf/after grid-changed-mw)
   (fn [app-state]
     (let [moved-app-state (move-tick app-state)]
       (assoc moved-app-state :grid-state (minios/remove-full-lines (:grid-state moved-app-state))))))

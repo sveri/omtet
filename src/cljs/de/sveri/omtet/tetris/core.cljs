@@ -11,8 +11,7 @@
            [goog.events.KeyHandler EventType]))
 
 (defn core []
-  (let [tet-width "200px"
-        _ (re-frame/subscribe [:grid-changed])]
+  (let [tet-width "200px"]
     [:div.row
     [:div.col-md-3
      [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]

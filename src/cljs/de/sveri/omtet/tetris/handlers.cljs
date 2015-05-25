@@ -6,7 +6,6 @@
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
 (defn grid-changed-mw [app-state]
-  ;(println (:cur-active app-state))
   (minios/draw-grid (:grid-state app-state) (:ctx app-state)))
 
 (defn move-on-keypress [app-state move-fn]
@@ -53,7 +52,7 @@
       {:timer      timer
        :ctx        ctx
        :grid-state [[] []]
-       :cur-active {:x 1 :y 2 :o 3 :t 5}})))
+       :cur-active (minios/get-rand-tetriminio)})))
 
 (register-handler
   :start-game

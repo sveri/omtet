@@ -6,7 +6,8 @@
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
 (defn grid-changed-mw [app-state]
-  (when (:grid-state app-state) (minios/draw-grid (:grid-state app-state) (:ctx app-state))))
+  ;(println (:cur-active app-state))
+  (minios/draw-grid (:grid-state app-state) (:ctx app-state)))
 
 (defn move-on-keypress [app-state move-fn]
   (let [cur-active (:cur-active app-state)

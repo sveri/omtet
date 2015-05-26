@@ -22,13 +22,10 @@
         (let [started? @(rf/subscribe [:started?])
               paused? @(rf/subscribe [:paused?])]
           [:button.btn.btn-primary
-           {:on-click
-            (cond (not started?) #(rf/dispatch [:start-game])
-                  paused? #(rf/dispatch [:unpause-game])
-                  (not paused?) #(rf/dispatch [:pause-game]))}
-           (cond (not started?) "Start Game" paused? "Continue Game" (not paused?) "Pause Game")])
-        ;[:button.btn.btn-primary {:on-click #(rf/dispatch [:stop-game])} "Stop Game"]
-        ]]
+           {:on-click (cond (not started?) #(rf/dispatch [:start-game])
+                            paused? #(rf/dispatch [:unpause-game])
+                            (not paused?) #(rf/dispatch [:pause-game]))}
+           (cond (not started?) "Start Game" paused? "Continue Game" (not paused?) "Pause Game")])]]
       [:h4 "Loading..."])))
 
 ;(defn init-core []

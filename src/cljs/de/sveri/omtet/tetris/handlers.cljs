@@ -46,35 +46,50 @@
   (rf/after grid-changed-mw)
   (fn [_ _]
     (set! (.-onkeydown js/document) keydown)
-    (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")
-          timer (goog.Timer. 1000)]
-      (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
-      {:timer      timer
-       :ctx        ctx
-       :grid-state [[] []]
-       :cur-active (minios/get-rand-tetriminio)})))
+    (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")]
+      {:ctx          ctx
+       :grid-state   [[] []]
+       :initialized? true
+       :started?     false})))
 
 (register-handler
   :start-game
   (rf/after grid-changed-mw)
   (fn [app-state _]
-    (. (:timer app-state) (start))
-    (let [cur-active (:cur-active app-state)
+    (let [rand-tet (minios/get-rand-tetriminio)
           empty-grid (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0)))))
-          one-move-grid (minios/draw-tet cur-active minios/tet-recipe 1 empty-grid)]
+          one-move-grid (minios/draw-tet rand-tet minios/tet-recipe 1 empty-grid)
+          timer (goog.Timer. 1000)]
+      (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
+      (. timer (start))
       (minios/draw-grid one-move-grid (:ctx app-state))
-      (assoc app-state :grid-state one-move-grid))))
+      (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false))))
+
+(register-handler
+  :pause-game
+  (fn [db _]
+    (. (:timer db) (stop))
+    (assoc db :paused? true)))
+
+(register-handler
+  :unpause-game
+  (fn [db _]
+    (. (:timer db) (start))
+    (assoc db :paused? false)))
 
 (register-handler
   :stop-game
   (fn [app-state _]
-    (. (:timer app-state) (stop))
-    app-state))
+    (let [timer (:timer app-state)]
+      (. timer (stop))
+      (.disposeInternal timer))
+    (assoc app-state :started? false)))
 
 (register-handler
   :game-over
   (fn [app-state]
-    (. (:timer app-state) (stop))
+    (dispatch [:stop-game])
+    ;(. (:timer app-state) (stop))
     ;(js/alert "Game Over!")
     app-state))
 

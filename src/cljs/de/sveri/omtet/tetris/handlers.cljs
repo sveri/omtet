@@ -63,7 +63,8 @@
       (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
       (. timer (start))
       (minios/draw-grid one-move-grid (:ctx app-state))
-      (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false))))
+      (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false
+                       :score 0))))
 
 (register-handler
   :pause-game
@@ -112,4 +113,6 @@
   (rf/after grid-changed-mw)
   (fn [app-state]
     (let [moved-app-state (move-tick app-state)]
-      (assoc moved-app-state :grid-state (minios/remove-full-lines (:grid-state moved-app-state))))))
+      (update-in
+        (assoc moved-app-state :grid-state (minios/remove-full-lines (:grid-state moved-app-state)) )
+        [:score] + (minios/count-points (:grid-state moved-app-state))))))

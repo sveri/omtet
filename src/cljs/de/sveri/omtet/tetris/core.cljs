@@ -12,12 +12,13 @@
 
 (defn core []
   (let [tet-width "200px"
-        initalized? (rf/subscribe [:initalized?])]
+        initalized? (rf/subscribe [:initalized?])
+        score (rf/subscribe [:score])]
     (if initalized?
       [:div.row
        [:div.col-md-3
         [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
-        [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} "Score: 0"]]
+        [:div#score {:style {:background-color "#CCCCCC" :width tet-width}} (str "Score: " @score)]]
        [:div.col-md-3
         (let [started? @(rf/subscribe [:started?])
               paused? @(rf/subscribe [:paused?])]

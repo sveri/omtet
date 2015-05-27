@@ -124,3 +124,6 @@
 (defn remove-full-lines [xs]
   (let [n (count (first xs))]
     (vec (map (partial lpad n) (transpose (filter wanted? (transpose xs)))))))
+
+(defn count-points [xs]
+  (count (filter #(not (some zero? %)) (transpose xs))))

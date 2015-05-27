@@ -16,6 +16,15 @@
       (assoc app-state :cur-active (move-fn) :grid-state (minios/draw-tet (move-fn) minios/tet-recipe 1 remove-cur-grid))
       app-state)))
 
+(defn stop-timer [timer]
+  (. timer (stop))
+  (.disposeInternal timer))
+
+(defn new-timer [time-ctd]
+  (let [timer (goog.Timer. time-ctd)]
+    (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
+    timer))
+
 (register-handler
   :move-one-down
   (rf/after grid-changed-mw)
@@ -60,12 +69,12 @@
     (let [rand-tet (minios/get-rand-tetriminio)
           empty-grid (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0)))))
           one-move-grid (minios/draw-tet rand-tet minios/tet-recipe 1 empty-grid)
-          timer (goog.Timer. 1000)]
-      (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
+          time-ctd 1000
+          timer (new-timer time-ctd)]
       (. timer (start))
       (minios/draw-grid one-move-grid (:ctx app-state))
       (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false
-                       :score 0))))
+                       :score 0 :lvl 1 :time-ctd time-ctd))))
 
 (register-handler
   :pause-game
@@ -82,9 +91,7 @@
 (register-handler
   :stop-game
   (fn [app-state _]
-    (let [timer (:timer app-state)]
-      (. timer (stop))
-      (.disposeInternal timer))
+    (stop-timer (:timer app-state))
     (assoc app-state :started? false)))
 
 (register-handler
@@ -92,6 +99,16 @@
   (fn [app-state]
     (dispatch [:stop-game])
     app-state))
+
+(register-handler
+  :next-lvl
+  (fn [app-state _]
+    (let [new-lvl (+ 1 (:lvl app-state))
+          new-time-ctd (- (:time-ctd app-state) (* 0.1 (:time-ctd app-state)))
+          timer-new (new-timer new-time-ctd)]
+      (stop-timer (:timer app-state))
+      (. timer-new (start))
+      (assoc app-state :timer timer-new :lvl new-lvl :time-ctd new-time-ctd))))
 
 (defn- move-tick [app-state]
   (let [cur-active (:cur-active app-state)
@@ -107,11 +124,16 @@
           (assoc app-state :cur-active new-act)
           (do (dispatch [:game-over]) app-state))))))
 
+(defn check-lvl [app-state new-points]
+  (when (< (* 10 (:lvl app-state)) (+ new-points (:score app-state))) (dispatch [:next-lvl])))
+
 (register-handler
   :game-sec-tick
   (rf/after grid-changed-mw)
   (fn [app-state]
-    (let [moved-app-state (move-tick app-state)]
+    (let [moved-app-state (move-tick app-state)
+          new-points (minios/count-points (:grid-state moved-app-state))]
+      (check-lvl moved-app-state new-points)
       (update-in
-        (assoc moved-app-state :grid-state (minios/remove-full-lines (:grid-state moved-app-state)) )
-        [:score] + (minios/count-points (:grid-state moved-app-state))))))
+        (assoc moved-app-state :grid-state (minios/remove-full-lines (:grid-state moved-app-state)))
+        [:score] + new-points))))

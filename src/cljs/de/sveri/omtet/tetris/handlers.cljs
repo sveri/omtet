@@ -35,6 +35,7 @@
       39 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] + 1))
       40 (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1))
       32 (do (dispatch [:move-one-down]) app-state)
+      80 (if (:paused? app-state) (dispatch [:unpause-game]) (dispatch [:pause-game]))
       app-state)))
 
 (defn keydown [e]
@@ -90,8 +91,6 @@
   :game-over
   (fn [app-state]
     (dispatch [:stop-game])
-    ;(. (:timer app-state) (stop))
-    ;(js/alert "Game Over!")
     app-state))
 
 (defn- move-tick [app-state]

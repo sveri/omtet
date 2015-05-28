@@ -20,8 +20,8 @@
   (. timer (stop))
   (.disposeInternal timer))
 
-(defn new-timer [time-ctd]
-  (let [timer (goog.Timer. time-ctd)]
+(defn new-timer [timestamp]
+  (let [timer (goog.Timer. timestamp)]
     (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
     timer))
 
@@ -69,12 +69,12 @@
     (let [rand-tet (minios/get-rand-tetriminio)
           empty-grid (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0)))))
           one-move-grid (minios/draw-tet rand-tet minios/tet-recipe 1 empty-grid)
-          time-ctd 1000
-          timer (new-timer time-ctd)]
+          timestamp 1000
+          timer (new-timer timestamp)]
       (. timer (start))
       (minios/draw-grid one-move-grid (:ctx app-state))
       (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false
-                       :score 0 :lvl 1 :time-ctd time-ctd))))
+                       :score 0 :lvl 1 :timestamp timestamp))))
 
 (register-handler
   :pause-game
@@ -104,11 +104,11 @@
   :next-lvl
   (fn [app-state _]
     (let [new-lvl (+ 1 (:lvl app-state))
-          new-time-ctd (- (:time-ctd app-state) (* 0.1 (:time-ctd app-state)))
-          timer-new (new-timer new-time-ctd)]
+          new-timestamp (- (:timestamp app-state) (* 0.1 (:timestamp app-state)))
+          timer-new (new-timer new-timestamp)]
       (stop-timer (:timer app-state))
       (. timer-new (start))
-      (assoc app-state :timer timer-new :lvl new-lvl :time-ctd new-time-ctd))))
+      (assoc app-state :timer timer-new :lvl new-lvl :timestamp new-timestamp))))
 
 (defn- move-tick [app-state]
   (let [cur-active (:cur-active app-state)

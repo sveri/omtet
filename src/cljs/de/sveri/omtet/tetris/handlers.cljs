@@ -6,6 +6,7 @@
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
 (defn grid-changed-mw [app-state]
+  (println "as: " app-state)
   (minios/draw-grid (:grid-state app-state) (:ctx app-state)))
 
 (defn move-on-keypress [app-state move-fn]
@@ -44,7 +45,7 @@
       39 (move-on-keypress app-state #(update-in (:cur-active app-state) [:x] + 1))
       40 (move-on-keypress app-state #(update-in (:cur-active app-state) [:y] + 1))
       32 (do (dispatch [:move-one-down]) app-state)
-      80 (if (:paused? app-state) (dispatch [:unpause-game]) (dispatch [:pause-game]))
+      80 (do (if (:paused? app-state) (dispatch [:unpause-game]) (dispatch [:pause-game])) app-state)
       app-state)))
 
 (defn keydown [e]

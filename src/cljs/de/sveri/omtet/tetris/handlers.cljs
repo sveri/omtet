@@ -52,14 +52,14 @@
   (dispatch [:keypressed e]))
 
 (defn get-clean-db-state []
-  {:ctx          (.getContext (h/get-elem "tetris-canv") "2d")
-   :grid-state   [[] []]
-   :initialized? true
-   :started?     false
-   :grid-h 20
-   :grid-w 10
+  {:ctx            (.getContext (h/get-elem "tetris-canv") "2d")
+   :grid-state     [[] []]
+   :initialized?   true
+   :started?       false
+   :grid-h         20
+   :grid-w         10
    :start-timestep 1000
-   :timestep-dim 0.1})
+   :timestep-dim   0.1})
 
 (register-handler
   :initialise-db

@@ -20,8 +20,8 @@
   (. timer (stop))
   (.disposeInternal timer))
 
-(defn new-timer [timestamp]
-  (let [timer (goog.Timer. timestamp)]
+(defn new-timer [timestep]
+  (let [timer (goog.Timer. timestep)]
     (ev/listen timer goog.Timer/TICK #(dispatch [:game-sec-tick]))
     timer))
 
@@ -55,7 +55,11 @@
   {:ctx          (.getContext (h/get-elem "tetris-canv") "2d")
    :grid-state   [[] []]
    :initialized? true
-   :started?     false})
+   :started?     false
+   :grid-h 20
+   :grid-w 10
+   :start-timestep 1000
+   :timestep-dim 0.1})
 
 (register-handler
   :initialise-db
@@ -69,14 +73,15 @@
   (rf/after grid-changed-mw)
   (fn [app-state _]
     (let [rand-tet (minios/get-rand-tetriminio)
-          empty-grid (mapv #(into [] %) (into [] (take 10 (partition 20 (iterate identity 0)))))
+          empty-grid (mapv #(into [] %) (into [] (take (:grid-w app-state)
+                                                       (partition (:grid-h app-state) (iterate identity 0)))))
           one-move-grid (minios/draw-tet rand-tet minios/tet-recipe 1 empty-grid)
-          timestamp 1000
-          timer (new-timer timestamp)]
+          timestep (:start-timestep app-state)
+          timer (new-timer timestep)]
       (. timer (start))
       (minios/draw-grid one-move-grid (:ctx app-state))
       (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false
-                       :score 0 :lvl 1 :timestamp timestamp))))
+                       :score 0 :lvl 1 :timestep timestep))))
 
 (register-handler
   :restart-game
@@ -113,11 +118,11 @@
   :next-lvl
   (fn [app-state _]
     (let [new-lvl (+ 1 (:lvl app-state))
-          new-timestamp (- (:timestamp app-state) (* 0.1 (:timestamp app-state)))
-          timer-new (new-timer new-timestamp)]
+          new-timestep (- (:timestep app-state) (* (:timestep-dim app-state) (:timestep app-state)))
+          timer-new (new-timer new-timestep)]
       (stop-timer (:timer app-state))
       (. timer-new (start))
-      (assoc app-state :timer timer-new :lvl new-lvl :timestamp new-timestamp))))
+      (assoc app-state :timer timer-new :lvl new-lvl :timestep new-timestep))))
 
 (defn- move-tick [app-state]
   (let [cur-active (:cur-active app-state)

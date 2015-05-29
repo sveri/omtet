@@ -51,16 +51,18 @@
   (when (h/in? [32 37 38 39 40] (.-keyCode e)) (.preventDefault e))
   (dispatch [:keypressed e]))
 
+(defn get-clean-db-state []
+  {:ctx          (.getContext (h/get-elem "tetris-canv") "2d")
+   :grid-state   [[] []]
+   :initialized? true
+   :started?     false})
+
 (register-handler
   :initialise-db
   (rf/after grid-changed-mw)
   (fn [_ _]
     (set! (.-onkeydown js/document) keydown)
-    (let [ctx (.getContext (h/get-elem "tetris-canv") "2d")]
-      {:ctx          ctx
-       :grid-state   [[] []]
-       :initialized? true
-       :started?     false})))
+    (get-clean-db-state)))
 
 (register-handler
   :start-game
@@ -75,6 +77,13 @@
       (minios/draw-grid one-move-grid (:ctx app-state))
       (assoc app-state :grid-state one-move-grid :started? true :timer timer :cur-active rand-tet :paused? false
                        :score 0 :lvl 1 :timestamp timestamp))))
+
+(register-handler
+  :restart-game
+  (fn [app-state _]
+    (stop-timer (:timer app-state))
+    (dispatch [:start-game])
+    (get-clean-db-state)))
 
 (register-handler
   :pause-game

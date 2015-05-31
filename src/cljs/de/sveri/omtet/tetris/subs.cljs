@@ -2,11 +2,3 @@
   (:require [re-frame.core :as re-frame :refer [register-sub]]
             [de.sveri.omtet.tetris.tetriminios :as minios])
   (:require-macros [reagent.ratom :refer [reaction]]))
-
-(register-sub :initalized? (fn [db _] (reaction (:initalized? @db))))
-
-(register-sub :started? (fn [db _] (reaction (:started? @db))))
-
-(register-sub :paused? (fn [db _] (reaction (:paused? @db))))
-
-(register-sub :score (fn [db _] (reaction (:score @db))))

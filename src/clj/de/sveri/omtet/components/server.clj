@@ -46,7 +46,7 @@
     (let [handler (:handler handler)
           config (:config config)
           server (serve handler
-                        {:port         3000
+                        {:port         3001
                          :init         (partial init config)
                          :auto-reload? true
                          :destroy      destroy

@@ -6,7 +6,6 @@
             [de.sveri.omtet.tetris.tetriminios :as minios]))
 
 (defn grid-changed-mw [app-state]
-  (println "as: " app-state)
   (minios/draw-grid (:grid-state app-state) (:ctx app-state)))
 
 (defn move-on-keypress [app-state move-fn]
@@ -49,7 +48,7 @@
       app-state)))
 
 (defn keydown [e]
-  (when (h/in? [32 37 38 39 40] (.-keyCode e)) (.preventDefault e))
+  (when (h/in? [32 37 38 39 40 80] (.-keyCode e)) (.preventDefault e))
   (dispatch [:keypressed e]))
 
 (defn get-clean-db-state []

@@ -2,7 +2,9 @@
 
     <ul class="nav navbar-nav" id="header-menu-wrapper">
         <li field="link-list" {% ifequal page "home/example.html" %} class="active"{%endifequal%}>
-            <a href="/example">Example Page</a></li>
+        <a href="/single">Single Player</a></li>
+        <li field="link-list" {% ifequal page "home/example.html" %} class="active"{%endifequal%}>
+        <a href="/1vs1">1 vs 1</a></li>
         {% ifequal "admin" role %}
         <li field="link-list"  {% ifequal page "user/admin.html" %} class="active"{%endifequal%}>
             <a href="/admin/users">Users</a></li>

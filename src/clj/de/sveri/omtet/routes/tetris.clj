@@ -4,4 +4,5 @@
 
 (defroutes
   tetris-routes
-  (GET "/tetris" [] (layout/render "tetris/index.html")))
+  (GET "/single" [] (layout/render "tetris/single.html"))
+  (GET "/1vs1" [] (layout/render "tetris/1vs1.html")))

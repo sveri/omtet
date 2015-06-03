@@ -4,7 +4,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :source-paths ["src/clj" "src/cljs" "target/generated/clj" "target/generated/cljs"]
+  :source-paths ["src/clj" "src/cljs"]
+  ;:source-paths ["src/clj" "src/cljs" "target/generated/clj" "target/generated/cljs"]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-3211"]
@@ -18,10 +19,10 @@
                  [ring/ring-anti-forgery "1.0.0"]
                  [compojure "1.3.1"]
                  [reagent "0.5.0"]
-                 [figwheel "0.2.6"]
+                 [figwheel "0.3.3"]
                  [environ "1.0.0"]
-                 [com.cemerick/piggieback "0.1.5"]
-                 [weasel "0.5.0"]
+                 ;[com.cemerick/piggieback "0.1.5"]
+                 ;[weasel "0.5.0"]
                  [leiningen "2.5.1"]
                  [http-kit "2.1.19"]
                  [selmer "0.8.0"]
@@ -60,7 +61,8 @@
 
                  [re-frame "0.4.0"]]
 
-  :plugins [[com.keminglabs/cljx "0.5.0"]
+  :plugins [
+            ;[com.keminglabs/cljx "0.5.0"]
             [de.sveri/closp-crud "0.1.0"]
             [lein-cljsbuild "1.0.3"]
             [ragtime/ragtime.lein "0.3.8"]]
@@ -81,7 +83,8 @@
   :uberjar-name "omtet.jar"
 
   :cljsbuild
-  {:builds {:dev {:source-paths ["src/cljs" "target/generated/cljs" "env/dev/cljs"]
+  {:builds {:dev {:source-paths ["src/cljs" "env/dev/cljs"]
+  ;{:builds {:dev {:source-paths ["src/cljs" "target/generated/cljs" "env/dev/cljs"]
                   :compiler     {:main           "omtet.dev"
                                  :asset-path     "/js/out"
                                  :output-to      "resources/public/js/app.js"
@@ -90,7 +93,8 @@
                                  :optimizations  :none
                                  :cache-analysis true
                                  :pretty-print   true}}
-            :adv {:source-paths ["src/cljs" "target/generated/cljs"]
+            :adv {:source-paths ["src/cljs"]
+            ;:adv {:source-paths ["src/cljs" "target/generated/cljs"]
                   :compiler     {:main          "de.sveri.omtet.core"
                                  :output-to     "resources/public/js/app.js"
                                  :output-dir    "resources/public/js/out-adv"
@@ -99,17 +103,18 @@
                                  :pretty-print  false}}}}
 
 
-  :prep-tasks [["cljx" "once"] "javac" "compile"]           ;also not sure
+  ;:prep-tasks [["cljx" "once"] "javac" "compile"]           ;also not sure
 
-  :cljx {:builds [{:source-paths ["src/cljx"]
-                   :output-path  "target/generated/clj"
-                   :rules        :clj}
-                  {:source-paths ["src/cljx"]
-                   :output-path  "target/generated/cljs"
-                   :rules        :cljs}]}
+  ;:cljx {:builds [{:source-paths ["src/cljx"]
+  ;                 :output-path  "target/generated/clj"
+  ;                 :rules        :clj}
+  ;                {:source-paths ["src/cljx"]
+  ;                 :output-path  "target/generated/cljs"
+  ;                 :rules        :cljs}]}
 
   :profiles {:dev     {:repl-options {:init-ns          de.sveri.omtet.user
-                                      :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+                                      :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+                                      }
 
                        :plugins      [[lein-ring "0.9.0"]
                                       [lein-figwheel "0.2.6"]
@@ -120,6 +125,8 @@
                                       :css-dirs         ["resources/public/css"]}
 
                        :dependencies [[ring-mock "0.1.5"]
+                                      [com.cemerick/piggieback "0.2.1"]
+                                      [org.clojure/tools.nrepl "0.2.10"]
                                       [ring/ring-devel "1.3.2"]
                                       [pjstadig/humane-test-output "0.6.0"]]
 

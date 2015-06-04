@@ -1,8 +1,7 @@
 (ns de.sveri.omtet.tetris.onevsone
   (:require [de.sveri.omtet.helper :as h]
             [reagent.core :as reagent]
-            [re-frame.core :as rf]
-            [de.sveri.omtet.common :as cljc-comm]))
+            [re-frame.core :as rf]))
 
 (defn core []
   [:div "ae"]
@@ -35,6 +34,5 @@
 
 
 (defn ^:export main []
-  (println (cljc-comm/cljc-common))
   ;(rf/dispatch [:initialise-db])
   (reagent/render-component (fn [] [core]) (h/get-elem "tetris-main")))

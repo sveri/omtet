@@ -78,8 +78,12 @@
 
             :uberjar-name "omtet.jar"
 
+            :hooks [leiningen.cljsbuild]
+
             :cljsbuild {
                         :builds {:dev {:source-paths ["src/cljs" "src/cljc"]
+
+                                       :incremental true
 
                                        :figwheel     true
 
@@ -95,7 +99,8 @@
                                         :compiler     {:output-to     "resources/public/js/app.js"
                                                        ;:main fig-temp.core
                                                        :optimizations :advanced
-                                                       :pretty-print  false}}}}
+                                                       :pretty-print  false}
+                                       :jar true}}}
 
             :figwheel {
                        ;; :http-server-root "public" ;; default and assumes "resources"
@@ -127,26 +132,6 @@
                        ;; :server-logfile "tmp/logs/figwheel-logfile.log"
                        }
 
-            ;:cljsbuild
-            ;{:builds {:dev {:source-paths ["src/cljs" "src/cljc"]
-            ;                :figwheel true
-            ;;{:builds {:dev {:source-paths ["src/cljs" "env/dev/cljs" "src/cljc"]
-            ;                :compiler     {:main           "omtet.dev"
-            ;                               :asset-path     "/js/out"
-            ;                               :output-to      "resources/public/js/app.js"
-            ;                               :output-dir     "resources/public/js/out"
-            ;                               :source-map     "resources/public/js/out.js.map"
-            ;                               :optimizations  :none
-            ;                               :cache-analysis true
-            ;                               :pretty-print   true}}
-            ;          :adv {:source-paths ["src/cljs" "src/cljc"]
-            ;                :compiler     {:main          "de.sveri.omtet.core"
-            ;                               :output-to     "resources/public/js/app.js"
-            ;                               :output-dir    "resources/public/js/out-adv"
-            ;                               :source-map    "resources/public/js/out.js.map"
-            ;                               :optimizations :advanced
-            ;                               :pretty-print  false}}}}
-
             :profiles {:dev     {:repl-options {:init-ns          de.sveri.omtet.user
                                                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
                                                 }
@@ -174,9 +159,11 @@
                        :uberjar {:auto-clean  false         ; not sure about this one
                                  :omit-source true
                                  :aot         :all
-                                 :cljsbuild   {:builds {:adv {:compiler {:optimizations :advanced
-                                                                         :pretty-print  false}}}}}}
+                                 ;:cljsbuild   {:builds {:adv {:compiler {:optimizations :advanced
+                                 ;                                        :pretty-print  false}}}}
+                                 }}
 
             :main de.sveri.omtet.core
 
-            :aliases {"rel-jar" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "once" "adv," "uberjar"]})
+            ;:aliases {"rel-jar" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "once" "adv," "uberjar"]}
+            )

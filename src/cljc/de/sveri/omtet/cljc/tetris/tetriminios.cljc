@@ -1,5 +1,5 @@
-(ns de.sveri.omtet.tetris.tetriminios
-  (:require [de.sveri.omtet.helper :as h])
+(ns de.sveri.omtet.cljc.tetris.tetriminios
+  (:require [de.sveri.omtet.cljc.helper :as h])
   )
 
 (defn get-rand-tetriminio [] {:x 1 :y 1 :o 0 :t (+ 1 (Math/floor (* 7 (Math/random))))})
@@ -74,7 +74,7 @@
 
 (defn realize-move [x y t grid] (assoc-in grid [x y] t))
 
-(defn draw-tet [{:keys [x y t o] :as cur-tet} tet-recipe d grid]
+(defn draw-tet [{:keys [x y t o]} tet-recipe d grid]
   (let [new-position (map #(move-x-y x y %) (get-in tet-recipe [t o]))]
       (reduce (fn [a b] (realize-move (:x b) (:y b) (* t d) a)) grid new-position)))
 

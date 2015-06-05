@@ -3,7 +3,7 @@
             [goog.events :as ev]
             [re-frame.core :as rf :refer [register-handler, dispatch]]
             [de.sveri.omtet.helper :as h]
-            [de.sveri.omtet.tetris.tetriminios :as minios]))
+            [de.sveri.omtet.cljc.tetris.tetriminios :as minios]))
 
 (defn grid-changed-mw [app-state]
   (minios/draw-grid (:grid-state app-state) (:ctx app-state)))

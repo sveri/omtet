@@ -1,4 +1,4 @@
-(ns de.sveri.omtet.helper)
+(ns de.sveri.omtet.cljc.helper)
 
 
 (defn in?

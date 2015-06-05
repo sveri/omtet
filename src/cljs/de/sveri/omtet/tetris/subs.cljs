@@ -1,6 +1,5 @@
 (ns de.sveri.omtet.tetris.subs
-  (:require [re-frame.core :as re-frame :refer [register-sub]]
-            [de.sveri.omtet.tetris.tetriminios :as minios])
+  (:require [re-frame.core :refer [register-sub]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (register-sub :initalized? (fn [db _] (reaction (:initalized? @db))))

@@ -1,5 +1,5 @@
 (ns omtet.dev
-  (:require [de.sveri.omtet.tetris.onevsone :as core]
+  (:require [de.sveri.omtet.tetris.core :as core]
             [figwheel.client :as figwheel :include-macros true]
             [cljs.core.async :refer [put!]]))
 

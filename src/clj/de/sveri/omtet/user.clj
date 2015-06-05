@@ -4,7 +4,7 @@
             [de.sveri.omtet.components.components :refer [dev-system]]))
 
 (defn start-dev-system []
-  (start-figwheel)
+  ;(start-figwheel)
   (go))
 
 (reloaded.repl/set-init! dev-system)

@@ -20,6 +20,8 @@
                  [compojure "1.3.4"]
                  [reagent "0.5.0"]
                  ;[figwheel "0.3.3"]
+                 [org.clojure/tools.nrepl "0.2.10"]
+                 [com.cemerick/piggieback "0.2.1"]
                  [environ "1.0.0"]
                  [leiningen "2.5.1"]
                  [http-kit "2.1.19"]
@@ -79,24 +81,36 @@
 
   :uberjar-name "omtet.jar"
 
-  :cljsbuild {
-              :builds {:dev {:source-paths ["src/cljs" "src/cljc"]
+  :hooks [leiningen.cljsbuild]
 
-                             :figwheel     true
+  :cljsbuild
+  {:builds
+   {:dev {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
 
-                             :compiler     {
-                                            :main                 de.sveri.omtet.tetris.core
-                                            :asset-path           "/js/out"
-                                            :output-to            "resources/public/js/app.js"
-                                            :output-dir           "resources/public/js/out"
-                                            :optimizations        :none
-                                            :source-map-timestamp true}}
-                       :adv {
-                             :source-paths ["src" "src/cljc"]
-                             :compiler     {:output-to     "resources/public/js/app.js"
-                                            ;:main fig-temp.core
-                                            :optimizations :advanced
-                                            :pretty-print  false}}}}
+          :figwheel     true
+
+
+          :compiler     {
+                         :main                 omtet.dev
+                         :asset-path           "/js/out"
+                         :output-to            "resources/public/js/app.js"
+                         :output-dir           "resources/public/js/out"
+                         :optimizations        :none
+                         :source-map-timestamp true}}
+    :adv {
+          :source-paths ["src/cljs" "src/cljc"]
+
+          :modules      {:single   {:output-to "resources/public/js/single.js"
+                                    :entries   #{de.sveri.omtet.tetris.core}}
+                         :onevsone {:output-to "resources/public/js/1vs1.js"
+                                    :entries   #{de.sveri.omtet.tetris.onevsone}}}
+          :compiler     {
+                         :output-to     "resources/public/js/app.js"
+                         ;:main fig-temp.core
+                         ;:output-dir "resources/"
+                         :jar           true
+                         :optimizations :advanced
+                         :pretty-print  false}}}}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources"
@@ -137,8 +151,6 @@
                                       [joplin.lein "0.2.9"]]
 
                        :dependencies [[ring-mock "0.1.5"]
-                                      [com.cemerick/piggieback "0.2.1"]
-                                      [org.clojure/tools.nrepl "0.2.10"]
                                       [ring/ring-devel "1.3.2"]
                                       [pjstadig/humane-test-output "0.7.0"]]
 
@@ -151,9 +163,11 @@
              :uberjar {:auto-clean  false                   ; not sure about this one
                        :omit-source true
                        :aot         :all
-                       :cljsbuild   {:builds {:adv {:compiler {:optimizations :advanced
-                                                               :pretty-print  false}}}}}}
+                       ;:cljsbuild   {:builds {:adv {:compiler {:optimizations :advanced
+                       ;                                        :pretty-print  false}}}}
+                       }}
 
   :main de.sveri.omtet.core
 
-  :aliases {"rel-jar" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "once" "adv," "uberjar"]})
+  ;:aliases {"rel-jar" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "once" "adv," "uberjar"]}
+  )

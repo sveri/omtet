@@ -11,6 +11,7 @@
            [goog.events.KeyHandler EventType]))
 
 (defn core []
+  (println "core")
   (let [tet-width "200px"
         initalized? (rf/subscribe [:initalized?])
         score (rf/subscribe [:score])]

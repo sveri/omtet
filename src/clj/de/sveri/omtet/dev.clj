@@ -1,7 +1,10 @@
 (ns de.sveri.omtet.dev
-  (:require [cemerick.piggieback]
+  (:require
+    ;[cemerick.piggieback]
             ;[weasel.repl.websocket]
-            [leiningen.core.main :as lein]))
+            [leiningen.core.main :as lein]
+            )
+  )
 
 (defn start-figwheel []
   (future

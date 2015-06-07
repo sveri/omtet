@@ -29,7 +29,6 @@
   :move-one-down
   (rf/after grid-changed-mw)
   (fn [app-state _]
-    (println "move down")
     (when (minios/is-move-allowed? (update-in (:cur-active app-state) [:y] + 2) (:cur-active app-state)
                                    (:grid-state app-state) minios/tet-recipe)
       (dispatch [:move-one-down]))

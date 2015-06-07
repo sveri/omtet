@@ -60,7 +60,6 @@
 
   :plugins [[de.sveri/closp-crud "0.1.0"]
             [lein-cljsbuild "1.0.5"]
-            ;[lein-figwheel "0.3.3"]
             [ragtime/ragtime.lein "0.3.8"]]
 
   ;database migrations

@@ -80,15 +80,20 @@
   ; leaving this commented because of: https://github.com/cursiveclojure/cursive/issues/369
   ;:hooks [leiningen.cljsbuild]
 
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+
   :cljsbuild
   {:builds
    {:dev {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
-          :figwheel     true
+          :figwheel {:css-dirs ["resources/public/css"]             ;; watch and update CSS
+                     :on-jsload "omtet.dev/main"}
           :compiler     {:main                 omtet.dev
                          :asset-path           "/js/out"
                          :output-to            "resources/public/js/app.js"
                          :output-dir           "resources/public/js/out"
-                         :optimizations        :none
+                         :optimizations  :none
+                         :cache-analysis true
+                         :pretty-print   true
                          :source-map-timestamp true}}
     :adv {:source-paths ["src/cljs" "src/cljc"]
           :compiler     {
@@ -97,9 +102,6 @@
                          ;:jar           true
                          :optimizations :advanced
                          :pretty-print  false}}}}
-
-  :figwheel {:css-dirs ["resources/public/css"]             ;; watch and update CSS
-             }
 
   :profiles {:dev     {:repl-options {:init-ns de.sveri.omtet.user}
 
@@ -123,4 +125,4 @@
 
   :main de.sveri.omtet.core
 
-  :aliases {"rel-jar" ["do" "cljsbuild" "once" "adv," "uberjar"]})
+  :aliases {"rel-jar" ["do" "clean," "cljsbuild" "once" "adv," "uberjar"]})

@@ -11,7 +11,11 @@
         ]
     ;(if initalized?
       [:div.row
-       [:div.col-md-3
+       [:div.col-md-6
+        [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
+        ;[:div#score {:style {:background-color "#CCCCCC" :width tet-width}} (str "Score: " @score)]
+        ]
+       [:div.col-md-6
         [:canvas#tetris-canv {:height "400px" :width tet-width :style {:background-color "#444444"}}]
         ;[:div#score {:style {:background-color "#CCCCCC" :width tet-width}} (str "Score: " @score)]
         ]]
